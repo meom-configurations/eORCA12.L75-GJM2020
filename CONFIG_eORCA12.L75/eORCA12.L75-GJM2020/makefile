@@ -30,7 +30,7 @@ REFONLY = 'no'
 # MACHINE : name of architecture for compilation. Assume that a arch_${MACHINE}.fcm exists in ARCH 
 # to know available arch_xxx.fcm, use dcm_lsarch. You can edit/add your own arch_xxx.fcm in
 # CONFIG-CASE/ARCH/ directory
-³MACHINE = X64_OCCIGENjm2
+#MACHINE = X64_OCCIGENjm2
 MACHINE = X64_JEANZAY_jm
 
 # COMPUTER is the name of the machine on which the experiement will be run. Used for make ctl only
