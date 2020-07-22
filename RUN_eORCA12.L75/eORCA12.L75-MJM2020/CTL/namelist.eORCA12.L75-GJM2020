@@ -291,15 +291,15 @@
    !       !  file name       ! frequency (hours) ! variable  ! time interp.!  clim   ! 'yearly'/ ! weights filename             ! rotation !  lsm !
    !       !                  !  (if <0  months)  !   name    !   (logical) !  (T/F)  ! 'monthly' !                              !  paring  !      !
    !_______!__________________!___________________!___________!_____________!_________!___________!______________________________!__________!______!
-   sn_wndi = 'drowned_u10_DFS5.2'   ,  3.         ,  'u10'    ,    .true.   , .false. , 'yearly'  , 'wght_DFS5_eORCA12_bicub.nc' , 'U1' ,   ''
-   sn_wndj = 'drowned_v10_DFS5.2'   ,  3.         ,  'v10'    ,    .true.   , .false. , 'yearly'  , 'wght_DFS5_eORCA12_bicub.nc' , 'V1' ,   ''
-   sn_qsr  = 'drowned_radsw_DFS5.2' , 24.         ,  'radsw'  ,    .false.  , .false. , 'yearly'  , 'wght_DFS5_eORCA12_bilin.nc' , ''   ,   ''
-   sn_qlw  = 'drowned_radlw_DFS5.2' , 24.         ,  'radlw'  ,    .false.  , .false. , 'yearly'  , 'wght_DFS5_eORCA12_bilin.nc' , ''   ,   ''
-   sn_tair = 'drowned_t2_DFS5.2'    ,  3.         ,  't2'     ,    .true.   , .false. , 'yearly'  , 'wght_DFS5_eORCA12_bilin.nc' , ''   ,   ''
-   sn_humi = 'drowned_q2_DFS5.2'    ,  3.         ,  'q2'     ,    .true.   , .false. , 'yearly'  , 'wght_DFS5_eORCA12_bilin.nc' , ''   ,   ''
-   sn_prec = 'drowned_precip_DFS5.2' ,24.         ,  'precip' ,    .true.   , .false. , 'yearly'  , 'wght_DFS5_eORCA12_bilin.nc' , ''   ,   ''
-   sn_snow = 'drowned_snow_DFS5.2'  , 24.         ,  'snow'   ,    .true.   , .false. , 'yearly'  , 'wght_DFS5_eORCA12_bilin.nc' , ''   ,   ''
-   sn_slp  = 'drowned_msl_ERAinterim' ,3.         , 'msl'     ,    .true.   , .false. , 'yearly'  , 'wght_DFS5_eORCA12_bilin.nc' , ''   ,   ''
+   sn_wndi = 'drowned_uas_JRA55'    ,  3.         ,  'uas'    ,    .true.   , .false. , 'yearly'  , 'wght_JRA55_eORCA12_bicub.nc' , 'U1' ,   ''
+   sn_wndj = 'drowned_vas_JRA55'    ,  3.         ,  'vas'    ,    .true.   , .false. , 'yearly'  , 'wght_JRA55_eORCA12_bicub.nc' , 'V1' ,   ''
+   sn_qsr  = 'drowned_rsds_JRA55_1d' , 24.        ,  'rsds'   ,    .false.  , .false. , 'yearly'  , 'wght_JRA55_eORCA12_bilin.nc' , ''   ,   ''
+   sn_qlw  = 'drowned_rlds_JRA55'   ,  3.         ,  'radlw'  ,    .true.   , .false. , 'yearly'  , 'wght_JRA55_eORCA12_bilin.nc' , ''   ,   ''
+   sn_tair = 'drowned_tas_JRA55'    ,  3.         ,  'tas'    ,    .true.   , .false. , 'yearly'  , 'wght_JRA55_eORCA12_bilin.nc' , ''   ,   ''
+   sn_humi = 'drowned_huss_JRA55'   ,  3.         ,  'huss'   ,    .true.   , .false. , 'yearly'  , 'wght_JRA55_eORCA12_bilin.nc' , ''   ,   ''
+   sn_prec = 'drowned_tprecip_JRA55' , 3.         ,  'tprecip',    .true.   , .false. , 'yearly'  , 'wght_JRA55_eORCA12_bilin.nc' , ''   ,   ''
+   sn_snow = 'drowned_prsn_JRA55 '  ,  3.         ,  'prsn'   ,    .true.   , .false. , 'yearly'  , 'wght_JRA55_eORCA12_bilin.nc' , ''   ,   ''
+   sn_slp  = 'drowned_psl_JRA55'    ,  3.         ,  'psl'    ,    .true.   , .false. , 'yearly'  , 'wght_JRA55_eORCA12_bilin.nc' , ''   ,   ''
    sn_tdif = 'taudif_core'          , 24.         , 'taudif'  ,   .false.   , .true.  , 'yearly'  , 'weights_core_orca2_bilinear_noc' ,'' , ''
 
 / 
@@ -313,7 +313,7 @@
    sn_kati     =     'katamask'     ,      -1.          , 'katamaskx',    .false.  , .true.  , 'yearly'  , ''               , ''       ,  ''
    sn_katj     =     'katamask'     ,      -1.          , 'katamasky',    .false.  , .true.  , 'yearly'  , ''               , ''       ,  ''
 !-----------------------------------------------------------------------
-   ln_LR         = .false.    ! Lionel Renault current feedback parameterization
+   ln_LR         = .true.     ! Lionel Renault current feedback parameterization
                               ! alpha and beta coefficient recommended by L. Renault are -2.0e-3 and 0.008
      rn_lra      = -2.9e-3    ! alpha coefficient in Stau equation  !   Stau = alpha*Ua + beta
      rn_lrb      =  0.008     ! beta coefficient in Stau equation   !   Tau = Tau_a + Stau*Uo
