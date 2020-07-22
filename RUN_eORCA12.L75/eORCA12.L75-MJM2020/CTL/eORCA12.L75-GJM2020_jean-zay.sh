@@ -31,7 +31,7 @@ export MERGE=0         # 1 = on the fly rebuild, 0 = dedicated job
 export NB_NPROC_MER=30 # number of cores used for rebuild on the fly  (1/node is a good choice)
 export NB_NNODE_MER=2  # number of nodes used for rebuild in dedicated job (MERGE=0). One instance of rebuild per node will be used.
 export WALL_CLK_MER=3:00:00   # wall clock time for batch rebuild
-export ACCOUNT=fqx@cpu # account to be used
+export ACCOUNT=cli@cpu # account to be used
 
 date
 export I_MPI_ADJUST_ALLREDUCE=3
