@@ -26,14 +26,14 @@ set -x
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 login_node=node    # usefull on jade or an any machines requiring scp or ssh to access remote data
 #MAILTO=<MAILTO>
-ACCOUNT=none       # account number for project submission (e.g curie, vayu, jean-zay...)
+ACCOUNT=cli@cpu       # account number for project submission (e.g curie, vayu, jean-zay...)
 QUEUE=none         # queue name (e.g. curie )
 
 # Directory names
 #~~~~~~~~~~~~~~~~
 # 
 WORKDIR=$DDIR
-TMPDIR=$WORKDIR/TMPDIR_${CONFIG_CASE}
+TMPDIR=$DDIR/TMPDIR_${CONFIG_CASE}
 MACHINE=jean-zay
 
 case  $MACHINE  in
@@ -43,7 +43,7 @@ case  $MACHINE  in
 ( *      )  echo $MACHINE not yet supported for SUBMIT definition
 esac
 
-SUBMIT_SCRIPT=${CONFIG_CASE}_occigen.sh   # name of the script to be launched by run_nemo in CTL
+SUBMIT_SCRIPT=${CONFIG_CASE}_jean-zay.sh   # name of the script to be launched by run_nemo in CTL
 
 if [ ! -d ${TMPDIR} ] ; then mkdir $TMPDIR ; fi
 
