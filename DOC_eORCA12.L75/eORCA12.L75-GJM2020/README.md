@@ -1,3 +1,4 @@
+
 # eORCA12.L75-GJM2020 simulation
 
 ## Overview
@@ -54,6 +55,13 @@ We implement Lionel Renault current feedback parameterization on stress as in
 
 ## Input data files
 ### Configuration files
+We take the configuration file provided by UKMO (```domaincfg_eORCA12_v1.0.nc```) where the variable ```mpp_mask``` was added (see above).
+
+### Initial conditions
+In order to follow UKMO GO8 configuration, we plan to initialize the model from the ENACT-Ensemble EN4 data set. However, in  a first attempt, Pierre Mathiot faced unstabilities problems with eORCA12.L75 configurations at cold start. Therefore, we probably need to fix local irregularities on the T S initial conditions, to avoid these unstabilities.
+
+The road map is to interpolate EN4 on the model grid (Using SOSIE) and then to identify potential problems, and fix them...
+ 
 ### Forcing files
 JRA55 files were downloaded from the ESG [site](https://esgf-node.llnl.gov/esg-search/wget/?distrib=false&dataset_id=input4MIPs.CMIP6.OMIP.MRI.MRI-JRA55-do-1-4-0.atmos.3hrPt.ts.gr.v20190429|aims3.llnl.gov)
 hosted at LLNL (Lawrence Livermore National Laboratory, US) for OMIP experiments. Dedicated ```wget``` scripts were used for downloading the data (see the [TOOLS/FORCING/WGET](../../TOOLS/FORCING/WGET) directory).  
