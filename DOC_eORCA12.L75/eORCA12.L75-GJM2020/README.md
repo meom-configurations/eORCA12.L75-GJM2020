@@ -52,7 +52,7 @@ in the ```domain_cfg.nc``` file, instead of the ```bottom_level``` variable. Pse
 #### sbcblk.F90 
 We implement Lionel Renault current feedback parameterization on stress as in
    
-
+[
 ## Input data files
 ### Configuration files
 We take the configuration file provided by UKMO (```domaincfg_eORCA12_v1.0.nc```) where the variable ```mpp_mask``` was added (see above).
@@ -61,7 +61,26 @@ We take the configuration file provided by UKMO (```domaincfg_eORCA12_v1.0.nc```
 In order to follow UKMO GO8 configuration, we plan to initialize the model from the ENACT-Ensemble EN4 data set. However, in  a first attempt, Pierre Mathiot faced unstabilities problems with eORCA12.L75 configurations at cold start. Therefore, we probably need to fix local irregularities on the T S initial conditions, to avoid these unstabilities.
 
 The road map is to interpolate EN4 on the model grid (Using SOSIE) and then to identify potential problems, and fix them...
- 
+  * I started from original EN4 file at rev 4.2.1, downloaded on ige-meom-cal1 using provided wget script on [Hadley Center Observation](https://www.metoffice.gov.uk/hadobs/en4/) site.
+    * I took both the analysis with Gouretski correction and with Levitus 2009 correction.
+    * data are available as monthly files from 1900 to 2020 !  I took from 1977 to 2020.
+  * Once the files were unzipped, I computed a monthly climatology on the period 1995-2014 (using ncea), tranformed the potential temperature from Kelvin
+to Deg Celsius (using ncap2), and concatenated the file to form a yearly file holding the monthly climatology (using ncrcat).
+    * ```EN.4.2.1.f.analysis.g10.1995-2014_C_TS.nc``` correspond to the Gouretski correction.
+    * ```EN.4.2.1.f.analysis.l09.1995-2014_C_TS.nc``` corresponds to the Levitus 2009 correction.
+  * I followed on the processing with the Gouretski corrected files
+  * Interpolation on the model grid with SOSIE gave a **first guess** of the initial condition files.
+    * ```vosaline_EN4.2.1.g10-eORCA12.L75_v1.0_monthly_masked.nc```
+    * ```votemper_EN4.2.1.g10-eORCA12.L75_v1.0_monthly_masked.nc```
+  * a first check on the salinity file shows (as expected) anomalies near the bottom.
+  * Iterative procedure using ```cdffixanom``` was used to correct these anomalies. The region were corrections are obviously needed :
+    * Baltic Sea
+    * Black Sea
+    * Mediterannean Sea
+    * Red Sea
+    * Persian Gulf
+
+
 ### Forcing files
 JRA55 files were downloaded from the ESG [site](https://esgf-node.llnl.gov/esg-search/wget/?distrib=false&dataset_id=input4MIPs.CMIP6.OMIP.MRI.MRI-JRA55-do-1-4-0.atmos.3hrPt.ts.gr.v20190429|aims3.llnl.gov)
 hosted at LLNL (Lawrence Livermore National Laboratory, US) for OMIP experiments. Dedicated ```wget``` scripts were used for downloading the data (see the [TOOLS/FORCING/WGET](../../TOOLS/FORCING/WGET) directory).  
