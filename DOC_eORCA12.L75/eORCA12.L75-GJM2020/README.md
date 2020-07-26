@@ -75,11 +75,55 @@ to Deg Celsius (using ncap2), and concatenated the file to form a yearly file ho
   * a first check on the salinity file shows (as expected) anomalies near the bottom.
   * Iterative procedure using ```cdffixanom``` was used to correct these anomalies. The region where corrections are obviously needed :
     * Baltic Sea
+     - corrections in the deeper part of the Baltic Sea below level 15, adjustment in the northern part of the Gulf of Botnia.
     * Black Sea
+     - Patch Belokopytov monthly climatology for T and S used for our BSAS configuration. For the Azov sea, set salinity to 12 and tempertature identical to the colder part in northern Black Sea, near Dniepr estuary.
     * Mediterannean Sea
+     - Work on different fixes then use cdfvar for propagating profile and ends up with patching the whole region back to the global...
     * Red Sea
-    * Persian Gulf
+    *Persian Gulf
 
+<!---
+### TO be sorted out
+ 1135  ./fixanom_EN4.sh
+ 1136  ls -ltr
+ 1137  ncview MedSea_vosaline_EN4.2.1.g10-eORCA12.L75_v1.0_monthly_masked.nc.7
+ 1138  pwd
+ 1139  /gpfswork/rech/cli/rcli002/eORCA12.L75/eORCA12.L75-I/build_INITIAL_CONDITIONS
+ 1140  ls
+ 1141  ls -ltr
+ 1142  rm toto.nc*
+ 1143  cp MedSea_vosaline_EN4.2.1.g10-eORCA12.L75_v1.0_monthly_masked.nc.7 toto.nc
+ 1144  ncview toto.nc
+ 1145  ls -ltr
+ 1146  ./cdfbathy -f toto.nc -v vosaline -sz_ij 124 107 -z 115 125 88 119
+ 1147  ./cdfbathy -f toto.nc -v vosaline -sz_ij 124 107 -z 115 125 88 119 -lev 0 -time 0
+ 1148  ncview toto.02
+ 1149  ncview toto.nc.02
+ 1150  ./cdfbathy -f toto.nc -v vosaline -sz_ij 117 108 -z 102 124 84 113 -lev 0 -time 0
+ 1151  ncview toto.nc.03
+ 1152  ls -ltr
+ 1153  cp BSAS12-clim/patch_zone.f90 ./
+ 1154  mv patch_zone.f90  patch_zone_MedSea.f90
+ 1155  vi patch_zone_MedSea.f90
+ 1156  ifort -O2 patch_zone_MedSea.f90 -o patch_zone_MedSea -lnetcdf -lnetcdff
+ 1157  ls -l
+ 1158  ls -ltr
+ 1159  ./patch_zone_MedSea 
+ 1160  ls -ltr
+ 1161  ncview toto.nc.03
+ 1162  history
+ 1163  cp MedSea_votemper_EN4.2.1.g10-eORCA12.L75_v1.0_monthly_masked.nc.7 titi.nc
+ 1164   ./cdfbathy -f titi.nc -v votemper -sz_ij 117 108 -z 102 124 84 113 -lev 0 -time 0
+ 1165  ls -ltr
+ 1166  ncview titi.nc.01 
+ 1167  ls -ltr
+ 1168  ./patch_zone_MedSea 
+ 1169  ./patch_zone_MedSea -tgt sal3.nc -src toto.nc.03 -var vosaline
+ 1170  history
+
+###
+-->
 
 ### Forcing files
 JRA55 files were downloaded from the ESG [site](https://esgf-node.llnl.gov/esg-search/wget/?distrib=false&dataset_id=input4MIPs.CMIP6.OMIP.MRI.MRI-JRA55-do-1-4-0.atmos.3hrPt.ts.gr.v20190429|aims3.llnl.gov)
