@@ -73,7 +73,7 @@ to Deg Celsius (using ncap2), and concatenated the file to form a yearly file ho
     * ```vosaline_EN4.2.1.g10-eORCA12.L75_v1.0_monthly_masked.nc```
     * ```votemper_EN4.2.1.g10-eORCA12.L75_v1.0_monthly_masked.nc```
   * a first check on the salinity file shows (as expected) anomalies near the bottom.
-  * Iterative procedure using ```cdffixanom``` was used to correct these anomalies. The region were corrections are obviously needed :
+  * Iterative procedure using ```cdffixanom``` was used to correct these anomalies. The region where corrections are obviously needed :
     * Baltic Sea
     * Black Sea
     * Mediterannean Sea
