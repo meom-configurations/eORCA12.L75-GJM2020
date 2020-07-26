@@ -104,7 +104,7 @@
 !-----------------------------------------------------------------------
    !                       ! =T  read T-S fields for:
    ln_tsd_init = .true.         !  ocean initialisation
-   ln_tsd_dmp  = .false.         !  T-S restoring   (see namtra_dmp)
+   ln_tsd_dmp  = .true.         !  T-S restoring   (see namtra_dmp)
    
    cn_dir      = './'      !  root directory for the T-S data location
    !___________!_________________________!___________________!___________!_____________!________!___________!__________________!__________!_______________!
@@ -118,18 +118,18 @@
 !              !   if key_drakkar, **only**  namtsd_drk is read 
 !-----------------------------------------------------------------------
    ln_tsd_init   = .true.   !  Initialisation of ocean T & S with T &S input data (T) or not (F)
-   ln_tsd_dmp = .false.     !  damping of ocean T & S toward T &S input data (T) or not (F)
+   ln_tsd_dmp = .true.     !  damping of ocean T & S toward T &S input data (T) or not (F)
 
    cn_dir        = './'     !  root directory for the location of the temperature and salinity file
    !___________!_____________________________________!___________________!___________!_____________!________!___________!_____________!__________!_______________!
    !           !  file name                          ! frequency (hours) ! variable  ! time interp.!  clim  ! 'yearly'/ ! weights     ! rotation ! land/sea mask !
    !           !                                     !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' !   filename  ! pairing  !    filename   !
    ! data used for initial condition (istate)
-   sn_tem_ini  = 'votemper_woa13_95A4-woa13_95A4_75L_seasonal_1995-2005' , -12., 'votemper',  .false.  , .true., 'yearly'  , 'eORCA12_woa13_95A4_01v2_weights_bilin.nc' , ' '      , ' '
-   sn_sal_ini  = 'vosaline_woa13_95A4-woa13_95A4_75L_seasonal_1995-2005' , -12., 'vosaline',  .false.  , .true., 'yearly'  , 'eORCA12_woa13_95A4_01v2_weights_bilin.nc' , ' '      , ' '
+   sn_tem_ini  = 'eORCA12.L75_EN4.2.1g10_1995-2014_votemper' , -12.      , 'votemper',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
+   sn_sal_ini  = 'eORCA12.L75_EN4.2.1g10_1995-2014_vosaline' , -12.      , 'vosaline',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
    ! data used for damping ( tradmp)
-   sn_tem_dmp  = 'votemper_woa13_95A4-woa13_95A4_75L_seasonal_1995-2005' , -3., 'votemper',  .true.  , .true., 'yearly'  , 'eORCA12_woa13_95A4_01v2_weights_bilin.nc' , ' '      , ' '
-   sn_sal_dmp  = 'vosaline_woa13_95A4-woa13_95A4_75L_seasonal_1995-2005' , -3., 'vosaline',  .true.  , .true., 'yearly'  , 'eORCA12_woa13_95A4_01v2_weights_bilin.nc' , ' '      , ' '
+   sn_tem_dmp  = 'eORCA12.L75_EN4.2.1g10_1995-2014_votemper' , -12.      , 'votemper',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
+   sn_sal_dmp  = 'eORCA12.L75_EN4.2.1g10_1995-2014_vosaline' , -12.      , 'vosaline',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
    !
 /
 !-----------------------------------------------------------------------
@@ -449,7 +449,7 @@
    !           !  file name              ! frequency (hours) ! variable  ! time interp.!  clim  ! 'yearly'/ ! weights e ! rotation ! land/sea mask !
    !           !                         !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' !  filename ! pairing  !    filename   !
    sn_sst      = 'sst_data'              ,        24.        ,  'sst'    ,    .false.  , .false., 'yearly'  ,    ''     ,    ''    ,     ''
-   sn_sss      = 'EN4.1.1_75L_monthly_19952014_reg1d_sss_noz' , -12., 'vosaline' , .true..  , .true. , 'yearly'  , 'eORCA12_EN4.1.1f_reg_sss_weights_bilin.nc'     ,    ''    ,     ''
+   sn_sss      = 'eORCA12.L75_EN4.2.1g10_1995-2014_SSS' , -12., 'vosaline' , .true..   , .true. , 'yearly'  , ''        ,    ''    ,     ''
 /
 !-----------------------------------------------------------------------
 &namsbc_ssr_drk !   surface boundary condition : sea surface restoring   (ln_ssr =T)
