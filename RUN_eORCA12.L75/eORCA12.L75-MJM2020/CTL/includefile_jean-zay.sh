@@ -32,7 +32,7 @@ QUEUE=none         # queue name (e.g. curie )
 # Directory names
 #~~~~~~~~~~~~~~~~
 # 
-WORKDIR=$DDIR
+WORKDIR=$WORK
 TMPDIR=$DDIR/TMPDIR_${CONFIG_CASE}
 MACHINE=jean-zay
 
@@ -69,7 +69,7 @@ P_S_DIR=$WORKDIR/${CONFIG}/${CONFIG_CASE}-S
 P_R_DIR=$WORKDIR/${CONFIG}/${CONFIG_CASE}-R
 P_I_DIR=$WORKDIR/${CONFIG}/${CONFIG}-I                  # mirror on the production machine of the F_I_DIR
 P_DTA_DIR=$WORKDIR/${CONFIG}/${CONFIG}-I                # mirror on the production machine of the F_I_DIR
-P_FOR_DIR=${WORKDIR}/DATA_FORCING/DFS5.2_RD/ALL        # forcing files
+P_FOR_DIR=${WORKDIR}/DATA_FORCING/JRA55/drowned         # forcing files
 P_OBC_DIR=${WORKDIR}/${CONFIG}/${CONFIG}-I/OBC          # OBC files
 P_BDY_DIR=${WORKDIR}/${CONFIG}/${CONFIG}-I/BDY          # BDY files
 P_WEI_DIR=$P_I_DIR

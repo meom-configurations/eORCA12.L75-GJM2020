@@ -37,7 +37,7 @@
    cn_exp        =   eORCA12.L75-GJM2020      !  experience name 
    nn_it000      =    <NIT000>       !  first time step
    nn_itend      =    <NITEND>       !  last  time step
-   nn_date0      =  19920101         !  initial calendar date yymmdd (used if nrstdt=1)
+   nn_date0      =  19580101         !  initial calendar date yymmdd (used if nrstdt=1)
    nn_time0    =       0             !  initial time of day in hhmm
    nn_leapy    =       1             !  Leap year calendar (1) or not (0)
    ln_rstart   = <RESTART>           !  start from rest (F) or from a restart file (T)
@@ -73,7 +73,7 @@
    ln_linssh   = .false.    !  =T  linear free surface  ==>>  model level are fixed in time
    rn_isfhmin  =    1.00   !  treshold [m] to discriminate grounding ice from floating ice
    !
-   rn_rdt      =    72.   !  time step for the dynamics and tracer
+   rn_rdt      =    10.   !  time step for the dynamics and tracer
    rn_atfp     =    0.1    !  asselin time filter parameter
    !
    ln_crs      = .false.   !  Logical switch for coarsening module      (T => fill namcrs)
@@ -125,8 +125,8 @@
    !           !  file name                          ! frequency (hours) ! variable  ! time interp.!  clim  ! 'yearly'/ ! weights     ! rotation ! land/sea mask !
    !           !                                     !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' !   filename  ! pairing  !    filename   !
    ! data used for initial condition (istate)
-   sn_tem_ini  = 'eORCA12.L75_EN4.2.1g10_1995-2014_votemper' , -12.      , 'votemper',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
-   sn_sal_ini  = 'eORCA12.L75_EN4.2.1g10_1995-2014_vosaline' , -12.      , 'vosaline',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
+   sn_tem_ini  = 'eORCA12.L75_EN4.2.1g10_1995-2014_votemper_extd' , -12.      , 'votemper',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
+   sn_sal_ini  = 'eORCA12.L75_EN4.2.1g10_1995-2014_vosaline_extd' , -12.      , 'vosaline',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
    ! data used for damping ( tradmp)
    sn_tem_dmp  = 'eORCA12.L75_EN4.2.1g10_1995-2014_votemper' , -12.      , 'votemper',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
    sn_sal_dmp  = 'eORCA12.L75_EN4.2.1g10_1995-2014_vosaline' , -12.      , 'vosaline',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
@@ -294,7 +294,7 @@
    sn_wndi = 'drowned_uas_JRA55'    ,  3.         ,  'uas'    ,    .true.   , .false. , 'yearly'  , 'wght_JRA55_eORCA12_bicub.nc' , 'U1' ,   ''
    sn_wndj = 'drowned_vas_JRA55'    ,  3.         ,  'vas'    ,    .true.   , .false. , 'yearly'  , 'wght_JRA55_eORCA12_bicub.nc' , 'V1' ,   ''
    sn_qsr  = 'drowned_rsds_JRA55_1d' , 24.        ,  'rsds'   ,    .false.  , .false. , 'yearly'  , 'wght_JRA55_eORCA12_bilin.nc' , ''   ,   ''
-   sn_qlw  = 'drowned_rlds_JRA55'   ,  3.         ,  'radlw'  ,    .true.   , .false. , 'yearly'  , 'wght_JRA55_eORCA12_bilin.nc' , ''   ,   ''
+   sn_qlw  = 'drowned_rlds_JRA55'   ,  3.         ,  'rlds '  ,    .true.   , .false. , 'yearly'  , 'wght_JRA55_eORCA12_bilin.nc' , ''   ,   ''
    sn_tair = 'drowned_tas_JRA55'    ,  3.         ,  'tas'    ,    .true.   , .false. , 'yearly'  , 'wght_JRA55_eORCA12_bilin.nc' , ''   ,   ''
    sn_humi = 'drowned_huss_JRA55'   ,  3.         ,  'huss'   ,    .true.   , .false. , 'yearly'  , 'wght_JRA55_eORCA12_bilin.nc' , ''   ,   ''
    sn_prec = 'drowned_tprecip_JRA55' , 3.         ,  'tprecip',    .true.   , .false. , 'yearly'  , 'wght_JRA55_eORCA12_bilin.nc' , ''   ,   ''
