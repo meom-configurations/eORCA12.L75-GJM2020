@@ -529,10 +529,10 @@
 !* nn_isf = 4 case
    sn_fwfisf   = 'rnfisf'    ,         -12.      ,'sowflisf' ,  .false.    , .true.  , 'yearly'  ,    ''    ,   ''     ,    ''
 !* nn_isf = 3 case
-   sn_rnfisf   = 'eORCA12_runoff_v2.4'  , -12.   ,'sofwfisf' ,  .false.    , .true.  , 'yearly'  ,    ''    ,   ''     ,    ''
+   sn_rnfisf   = 'eORCA12_runoff_v2.4'  , -1.    ,'sofwfisf' ,  .false.    , .true.  , 'yearly'  ,    ''    ,   ''     ,    ''
 !* nn_isf = 2 and 3 cases 
-   sn_depmax_isf ='eORCA12_runoff_v2.4' , -12.   ,'sozisfmax',  .false.    , .true.  , 'yearly'  ,    ''    ,   ''     ,    ''
-   sn_depmin_isf ='eORCA12_runoff_v2.4' , -12.   ,'sozisfmin',  .false.    , .true.  , 'yearly'  ,    ''    ,   ''     ,    ''
+   sn_depmax_isf ='eORCA12_runoff_v2.4' , -1.    ,'sozisfmax',  .false.    , .true.  , 'yearly'  ,    ''    ,   ''     ,    ''
+   sn_depmin_isf ='eORCA12_runoff_v2.4' , -1.    ,'sozisfmin',  .false.    , .true.  , 'yearly'  ,    ''    ,   ''     ,    ''
 !* nn_isf = 2 case
    sn_Leff_isf = 'rnfisf'    ,         -12.      ,'Leff'     ,  .false.    , .true.  , 'yearly'  ,    ''    ,   ''     ,    ''
 /
