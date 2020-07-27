@@ -107,6 +107,8 @@ manually and the whole corrected area patched back into the global file.
 This initial condition is for the time being, given in potential temperature (degC) and practical Salinity (PSU). **Conversion to conservative
 temperature and absolute salinity** in order to use TEOS10 equation of state for the sea-water, is required.
 
+ > **NOTE**: When trying to start the model from these initial conditions, I encounter a violent blow up of the model, in the Med Sea. I suspect some masking problems (because of the procedure I used for correcting bottom values...) So, I just use the program `ic_field_vertical_extent` which propagates last wet point on the water column down to the last vertical level. After this adjustment, the model was able to start.
+
 For SSS restoring we extract the surface layer for salinity.
 
 #### Corresponding namelist block
@@ -133,7 +135,7 @@ For SSS restoring we extract the surface layer for salinity.
 /
 
 ```
-
+#### Convertion for use with TEOS10 eq. of state: (GSW package with some tricks for ifort compilation)
 
 
 <!---
@@ -232,10 +234,6 @@ filter. **Can be more scientific**
    rn_dist    =  150.      ! distance to the coast
 /
 ```
-
-
-
-
  
 
 ### Forcing files
@@ -457,6 +455,8 @@ Note that the flag ln_isfcav is no more in the namelist but read from the domain
    sn_depmin_isf ='eORCA12_runoff_v2.4' , -12.   ,'sozisfmin',  .false.    , .true.  , 'yearly'  ,    ''    ,   ''     ,    ''
 /
 ```
+### Internal Wave Mixing (Casimir de Lavergne parameterization).
+This parameterization requires a set of file providing information about the available energy and the length scale. Casimir provided a set of files for different model resolution and the original one on a regular 1/4 degree grid.  Romain Bourdallé Badie from MOI, used interpolation on the fly for those fields, without problems. I will follow this advice.
 
 
 
