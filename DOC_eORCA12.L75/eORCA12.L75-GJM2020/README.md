@@ -35,6 +35,7 @@ save the full compatibility with the standard NEMO code.
 Following Pierre Mathiot advice I took UKMO [modifications](http://forge.ipsl.jussieu.fr/nemo/log/NEMO/branches/UKMO/NEMO_4.0_ICB_melting_temperature) in order to avoid basal melting if the ocean 
 temperature is below the freezing point. The fix is straight forward: melting is OFF if Toce less than local freezing point.
 
+
 #### Domain decomposition in mppini.F90
 We use the full eORCA12 domain, including under ice-shelf cavities, but we do not compute the flow pattern below the ice shelve so that using the standard code, southern most row of processors are
 just eliminated because they do not have any wet points. Therefore, this raises a problem when using a high number of XIOS server (which uses subdomains as zonal stripes over the global domain) because
@@ -51,8 +52,20 @@ in the ```domain_cfg.nc``` file, instead of the ```bottom_level``` variable. Pse
 
 #### sbcblk.F90 
 We implement Lionel Renault current feedback parameterization on stress as in
+
+#### tradmp.F90
+The Drakkar version maintains the capability for the creation of the restoring coefficient, on the fly, during initialisation, instead of
+reading an external file. We found this way much more user friendly when tuning up the damping. At the end, we also have the capability to
+write the final restoring coefficient to a netcdf file, and share this file with standard NEMO users.
+
+In this configuration, we maintain 3D TS restoring downstream the sills of Gibraltar Strait (Med Sea), Bab-el-Mandeb Strait (Red Sea) and 
+Ormuz Strait (Persian Gulf). This decision was made after discussion, because we think that if we do not restore the vein of dense waters
+downstream of these sills, the spurious spreading of these overflow waters at the (very) wrong depth will make the results of the simulation
+almost useless.
+  * Gulf of Cadix
+  * Gulf of Aden
+  * Gulf of Oman
    
-[
 ## Input data files
 ### Configuration files
 We take the configuration file provided by UKMO (```domaincfg_eORCA12_v1.0.nc```) where the variable ```mpp_mask``` was added (see above).
@@ -81,7 +94,47 @@ to Deg Celsius (using ncap2), and concatenated the file to form a yearly file ho
     * Mediterannean Sea
      - Work on different fixes then use cdfvar for propagating profile and ends up with patching the whole region back to the global...
     * Red Sea
-    *Persian Gulf
+     - As for the MedSea, I fixed most of the problem on the local extraction (in particular in the lower layers, where fresh water inferred
+from external seas was found). I used a presentation found on the web, describing the main salinity features of the Red Sea. The corrected
+extraction was then patched back into the global file, for T and S
+    * Persian Gulf
+     - Same technique (working on local extraction), but found very few information on the hydrography of this shallow Gulf. I decided to make
+a new interpolation with sosie 3D, starting from an extraction of EN4 data where there was only PersianGulf data with the idea of 
+avoiding spurious fresh values in the drowning process.  And it works quite fine (at least much better than in the initial first guesse with the
+global file!). However, there was still some spurious bottom values coming from the Arabian sea, downstream the Ormuz Strait. This was fixed 
+manually and the whole corrected area patched back into the global file.
+
+This initial condition is for the time being, given in potential temperature (degC) and practical Salinity (PSU). **Conversion to conservative
+temperature and absolute salinity** in order to use TEOS10 equation of state for the sea-water, is required.
+
+For SSS restoring we extract the surface layer for salinity.
+
+#### Corresponding namelist block
+
+```
+!-----------------------------------------------------------------------
+&namtsd_drk    !    Temperature & Salinity Data  (init/dmp)             (default: OFF)
+!              !   if key_drakkar, **only**  namtsd_drk is read
+!-----------------------------------------------------------------------
+   ln_tsd_init   = .true.   !  Initialisation of ocean T & S with T &S input data (T) or not (F)
+   ln_tsd_dmp    = .true.   !  damping of ocean T & S toward T &S input data (T) or not (F)
+
+   cn_dir        = './'     !  root directory for the location of the temperature and salinity file
+   !___________!_____________________________________!___________________!___________!_____________!________!___________!_____________!__________!_______________!
+   !           !  file name                          ! frequency (hours) ! variable  ! time interp.!  clim  ! 'yearly'/ ! weights     ! rotation ! land/sea mask !
+   !           !                                     !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' !   filename  ! pairing  !    filename   !
+   ! data used for initial condition (istate)
+   sn_tem_ini  = 'eORCA12.L75_EN4.2.1g10_1995-2014_votemper' , -12.      , 'votemper',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
+   sn_sal_ini  = 'eORCA12.L75_EN4.2.1g10_1995-2014_vosaline' , -12.      , 'vosaline',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
+   ! data used for damping ( tradmp)
+   sn_tem_dmp  = 'eORCA12.L75_EN4.2.1g10_1995-2014_votemper' , -12.      , 'votemper',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
+   sn_sal_dmp  = 'eORCA12.L75_EN4.2.1g10_1995-2014_vosaline' , -12.      , 'vosaline',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
+   !
+/
+
+```
+
+
 
 <!---
 ### TO be sorted out
@@ -124,6 +177,66 @@ to Deg Celsius (using ncap2), and concatenated the file to form a yearly file ho
 
 ###
 -->
+### Distance to the coast file for SSS restoring.
+We decided to use SSS restoring using the DRAKKAR enhancement, in which we switch off the restoring near the coastal boundaries, in order to
+let the dynamics build the coherent water masses. This enhancement requires a file holding the distance to the coast in the ocean. This 
+file is build with ```cdfcofdis``` dedicated CDFTOOL. But the tricky part is to adjust the mask of the main coast lines, avoiding offshore 
+islands that are present in the domain. This is done through a manual editing process, starting from the surface ```tmask```, using the ```BMGTOOLS``` tool.
+ For big configuration, I used the procedure I set up when building NATL60 configuration : files are spltted in smaller domain, each subdomain
+is then edited and corrected, and then the global domain is reconstruted after the corrections are done (use of splitfile2 pogram).
+After some iteration, the file ```eORCA12.L75_distcoast.nc``` file was produced. For the semi enclosed seas such as the MedSea, RedSea and Persian
+Gulf, we force the distance to be very big (5000 km) so that the restoring will be active throughout these seas. (They can be seen as big reservoirs
+of very salty waters, feeding the global ocean via overflow processes at the sills limiting these seas; the physical processes that are responsible
+of the high salinities --excess of evaporation vs precipitation and runoff-- do exist in the model, but are not well controlled.) 
+
+We also decided to filter the SSS model fields used in the computation of the restoring term, to avoid the irrealistic damping of SSS anomalies 
+due the model eddies, of course not present in the climatology. Empirically, we choose to apply a smoothing based on 300 paths of the Shapiro
+filter. **Can be more scientific**
+
+#### Corresponding namelist Block:
+
+```
+!-----------------------------------------------------------------------
+&namsbc_ssr    !   surface boundary condition : sea surface restoring   (ln_ssr =T)
+!-----------------------------------------------------------------------
+   nn_sstr     =     0     !  add a retroaction term to the surface heat flux (=1) or not (=0)
+      rn_dqdt     = -40.      !  magnitude of the retroaction on temperature   [W/m2/K]
+   nn_sssr     =     2     !  add a damping term to the surface freshwater flux (=2)
+      !                    !  or to SSS only (=1) or no damping term (=0)
+      rn_deds     =  -166.67  !  magnitude of the damping on salinity   [mm/day]
+      ln_sssr_bnd =  .true.   !  flag to bound erp term (associated with nn_sssr=2)
+      rn_sssr_bnd =   4.e0    !  ABS(Max/Min) value of the damping erp term [mm/day]
+
+      nn_sssr_ice =   1       ! control of sea surface restoring under sea-ice
+                              ! 0 = no restoration under ice : * (1-icefrac)
+                              ! 1 = restoration everywhere
+                              ! >1 = enhanced restoration under ice : 1+(nn_icedmp-1)*icefrac
+   cn_dir      = './'      !  root directory for the SST/SSS data location
+   !___________!_________________________!___________________!___________!_____________!________!___________!___________!__________!_______________!
+   !           !  file name              ! frequency (hours) ! variable  ! time interp.!  clim  ! 'yearly'/ ! weights e ! rotation ! land/sea mask !
+   !           !                         !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' !  filename ! pairing  !    filename   !
+   sn_sst      = 'sst_data'              ,        24.        ,  'sst'    ,    .false.  , .false., 'yearly'  ,    ''     ,    ''    ,     ''
+   sn_sss      = 'eORCA12.L75_EN4.2.1g10_1995-2014_SSS' , -12., 'vosaline' , .true..   , .true. , 'yearly'  , ''        ,    ''    ,     ''
+/
+!-----------------------------------------------------------------------
+&namsbc_ssr_drk !   surface boundary condition : sea surface restoring   (ln_ssr =T)
+!-----------------------------------------------------------------------
+   ln_sssr_flt  = .true.   ! use filtering of SSS model for sss restoring
+   nn_shap_iter =  300     ! number of iteration of the shapiro filter
+   ln_sssr_msk  = .true.   ! use a mask near the coast
+   !___________!____________________!___________________!__________!_____________!________!___________!__________!__________!_______________!
+   !           !  file name         ! frequency (hours) ! variable ! time interp.!  clim  ! 'yearly'/ ! weights  ! rotation ! land/sea mask !
+   !           !                    !  (if <0  months)  !   name   !   (logical) !  (T/F) ! 'monthly' ! filename ! pairing  !    filename   !
+   sn_coast    = 'eORCA12.L75_distcoast' , 0.           , 'Tcoast' , .false.     , .true. , 'yearly'  ,  ''      , ''       , ''
+
+   rn_dist    =  150.      ! distance to the coast
+/
+```
+
+
+
+
+ 
 
 ### Forcing files
 JRA55 files were downloaded from the ESG [site](https://esgf-node.llnl.gov/esg-search/wget/?distrib=false&dataset_id=input4MIPs.CMIP6.OMIP.MRI.MRI-JRA55-do-1-4-0.atmos.3hrPt.ts.gr.v20190429|aims3.llnl.gov)
@@ -238,6 +351,116 @@ At the end, solar flux is high frequency too!
 
 /
 ```
+### Iceberg Calving
+Pierre Mathiot prepared a new improved file where, for each ice shelf the calving rate (as published by Rignot 2003) is prescribed. In this
+new file, each grid point corresponding to the edge of the ice shelf is concerned by calving.  The rate at each calving point is assigned from
+a random distribution, and normalized so that the total amount of calving fits the Rignot estimate. This procedure was validated with an ORCA025
+simulation. It differs from what was done in the past when only few sparse points (says 50 km apart) on the ice shelf edge were calving, with
+at evenly divided rate.
+
+#### related namelist block namberg:
+
+```
+!-----------------------------------------------------------------------
+&namberg       !   iceberg parameters                                   (default: OFF)
+!-----------------------------------------------------------------------
+   ln_icebergs = .true.       ! activate iceberg floats (force =F with "key_agrif")
+   !
+   !                          ! diagnostics:
+   ln_bergdia        = .true.        ! Calculate budgets
+   nn_verbose_level  = 0             ! Turn on more verbose output if level > 0
+   nn_verbose_write  = 15            ! Timesteps between verbose messages
+   nn_sample_rate    = 1             ! Timesteps between sampling for trajectory storage
+   !
+   !                          ! iceberg setting:
+   !                                 ! Initial mass required for an iceberg of each class
+   rn_initial_mass   = 8.8e7, 4.1e8, 3.3e9, 1.8e10, 3.8e10, 7.5e10, 1.2e11, 2.2e11, 3.9e11, 7.4e11
+   !                                 ! Proportion of calving mass to apportion to each class
+   rn_distribution   = 0.24, 0.12, 0.15, 0.18, 0.12, 0.07, 0.03, 0.03, 0.03, 0.02
+   !                                 ! Ratio between effective and real iceberg mass (non-dim)
+   !                                 ! i.e. number of icebergs represented at a point
+   rn_mass_scaling   = 2000., 200., 50., 20., 10., 5., 2., 1., 1., 1.
+                                     ! thickness of newly calved bergs (m)
+   rn_initial_thickness     = 40., 67., 133., 175., 250., 250., 250., 250., 250., 250.
+   !
+   rn_rho_bergs            = 850.    ! Density of icebergs
+   rn_LoW_ratio            = 1.5     ! Initial ratio L/W for newly calved icebergs
+   ln_operator_splitting   = .true.  ! Use first order operator splitting for thermodynamics
+   rn_bits_erosion_fraction = 0.     ! Fraction of erosion melt flux to divert to bergy bits
+   rn_sicn_shift           = 0.      ! Shift of sea-ice concn in erosion flux (0<sicn_shift<1)
+   ln_passive_mode         = .false. ! iceberg - ocean decoupling
+   nn_test_icebergs        =  -1     ! Create test icebergs of this class (-1 = no)
+   !                                 ! Put a test iceberg at each gridpoint in box (lon1,lon2,lat1,lat2)
+   rn_test_box             = 108.0,  116.0, -66.0, -58.0
+   ln_use_calving          = .false. ! Use calving data even when nn_test_icebergs > 0
+   rn_speed_limit          = 0.      ! CFL speed limit for a berg
+
+   cn_dir      = './'      !  root directory for the calving data location
+   !___________!_________________________!___________________!___________!_____________!________!___________!__________________!__________!_______________!
+   !           !  file name              ! frequency (hours) ! variable  ! time interp.!  clim  ! 'yearly'/ ! weights filename ! rotation ! land/sea mask !
+   !           !                         !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' !                  ! pairing  !    filename   !
+   sn_icb     =  'eORCA12_calving_b2.4_v2.0' ,      -12.     ,'soicbclv',  .false.     , .true. , 'yearly'  , ''               , ''       , ''
+/
+```
+
+### Ice shelf melting parameterization
+We decided not to have the explicit representation of the ocean circulation in the ice cavities, under the ice shelve. Therefore, we use
+Perre Mathiot parameterization, consisting at prescribing the melting rate of the ice shelve as a coastal runoff, applied along the iceshelf
+draft, in the corresponding depth range. The runoff file is therefore used to store the relevant information for this parameterization. This
+add 3 variables in the netcdf file:
+
+  * ```sofwfisf```  : this is the corresponding freshwater flux at each point of the iceshelf edge (kg/m2/s).
+  * ```sozisfmax``` : This is the depth of the grounding line for the corresponding iceshelf  (m). (**not used?**)
+  * ```sozisfmin``` : This is the depth of the iceshelp edge, were the fresh water flux from the iceshelf is released (m). 
+
+#### Associated namelist block
+ Many namelist blocks are involved :
+
+```
+!-----------------------------------------------------------------------
+&namsbc        !   Surface Boundary Condition manager                   (default: NO selection)
+!-----------------------------------------------------------------------
+....
+   ln_isf      = .true.    !  ice shelf                                 (T   => fill namsbc_isf & namsbc_iscpl)
+```
+Note that the flag ln_isfcav is no more in the namelist but read from the domain_cfg file.
+
+```
+!-----------------------------------------------------------------------
+&namsbc_isf    !  Top boundary layer (ISF)                              (ln_isfcav =T : read (ln_read_cfg=T)
+!-----------------------------------------------------------------------             or set or usr_def_zgr )
+   !                 ! type of top boundary layer
+   nn_isf      = 3         !  ice shelf melting/freezing
+                           !  1 = presence of ISF   ;  2 = bg03 parametrisation
+                           !  3 = rnf file for ISF  ;  4 = ISF specified freshwater flux
+                           !  options 1 and 4 need ln_isfcav = .true. (domzgr)
+      !              !  nn_isf = 1 or 2 cases:
+      rn_gammat0  = 1.e-4     ! gammat coefficient used in blk formula
+      rn_gammas0  = 1.e-4     ! gammas coefficient used in blk formula
+      !              !  nn_isf = 1 or 4 cases:
+      rn_hisf_tbl =  30.      ! thickness of the top boundary layer    (Losh et al. 2008)
+      !                       ! 0 => thickness of the tbl = thickness of the first wet cell
+      !              ! nn_isf = 1 case
+      nn_isfblk   = 1         ! 1 ISOMIP  like: 2 equations formulation (Hunter et al., 2006)
+      !                       ! 2 ISOMIP+ like: 3 equations formulation (Asay-Davis et al., 2015)
+      nn_gammablk = 1         ! 0 = cst Gammat (= gammat/s)
+      !                       ! 1 = velocity dependend Gamma (u* * gammat/s)  (Jenkins et al. 2010)
+      !                       ! 2 = velocity and stability dependent Gamma    (Holland et al. 1999)
+
+   !___________!_____________!___________________!___________!_____________!_________!___________!__________!__________!_______________!
+   !           !  file name  ! frequency (hours) ! variable  ! time interp.!  clim   ! 'yearly'/ ! weights  ! rotation ! land/sea mask !
+   !           !             !  (if <0  months)  !   name    !  (logical)  !  (T/F)  ! 'monthly' ! filename ! pairing  ! filename      !
+!* nn_isf = 3 case
+   sn_rnfisf   = 'eORCA12_runoff_v2.4'  , -12.   ,'sofwfisf' ,  .false.    , .true.  , 'yearly'  ,    ''    ,   ''     ,    ''
+!* nn_isf = 2 and 3 cases
+   sn_depmax_isf ='eORCA12_runoff_v2.4' , -12.   ,'sozisfmax',  .false.    , .true.  , 'yearly'  ,    ''    ,   ''     ,    ''
+   sn_depmin_isf ='eORCA12_runoff_v2.4' , -12.   ,'sozisfmin',  .false.    , .true.  , 'yearly'  ,    ''    ,   ''     ,    ''
+/
+```
+
+
+
+
 
 
 
