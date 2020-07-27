@@ -240,7 +240,7 @@
       !                    !     =2 annual global mean of e-p-r set to zero
    ln_rnf      = .true.    !  runoffs                                   (T => fill namsbc_rnf)
    ln_apr_dyn  = .false.   !  Patm gradient added in ocean & ice Eqs.   (T => fill namsbc_apr )
-   ln_isf      = .false.   !  ice shelf                                 (T   => fill namsbc_isf & namsbc_iscpl)
+   ln_isf      = .true.    !  ice shelf                                 (T   => fill namsbc_isf & namsbc_iscpl)
    ln_wave     = .false.   !  Activate coupling with wave  (T => fill namsbc_wave)
    ln_cdgw     = .false.   !  Neutral drag coefficient read from wave model (T => ln_wave=.true. & fill namsbc_wave)
    ln_sdw      = .false.   !  Read 2D Surf Stokes Drift & Computation of 3D stokes drift (T => ln_wave=.true. & fill namsbc_wave)
@@ -454,15 +454,15 @@
 !-----------------------------------------------------------------------
 &namsbc_ssr_drk !   surface boundary condition : sea surface restoring   (ln_ssr =T)
 !-----------------------------------------------------------------------
-   ln_sssr_flt  = .false.  ! use filtering of SSS model for sss restoring
+   ln_sssr_flt  = .true.   ! use filtering of SSS model for sss restoring
    nn_shap_iter =  300     ! number of iteration of the shapiro filter 
-   ln_sssr_msk  = .false.  ! use a mask near the coast
+   ln_sssr_msk  = .true.   ! use a mask near the coast
    !___________!____________________!___________________!__________!_____________!________!___________!__________!__________!_______________!
    !           !  file name         ! frequency (hours) ! variable ! time interp.!  clim  ! 'yearly'/ ! weights  ! rotation ! land/sea mask !
    !           !                    !  (if <0  months)  !   name   !   (logical) !  (T/F) ! 'monthly' ! filename ! pairing  !    filename   !
-   sn_coast    = 'BSAS12_distcoast' , 0.                , 'Tcoast' , .false.     , .true. , 'yearly'  ,  ''      , ''       , ''
+   sn_coast    = 'eORCA12.L75_distcoast' , 0.           , 'Tcoast' , .false.     , .true. , 'yearly'  ,  ''      , ''       , ''
 
-   rn_dist    =  20.      ! distance to the coast
+   rn_dist    =  150.      ! distance to the coast
 /      
 !-----------------------------------------------------------------------
 &namsbc_rnf    !   runoffs                                              (ln_rnf =T)
@@ -529,10 +529,10 @@
 !* nn_isf = 4 case
    sn_fwfisf   = 'rnfisf'    ,         -12.      ,'sowflisf' ,  .false.    , .true.  , 'yearly'  ,    ''    ,   ''     ,    ''
 !* nn_isf = 3 case
-   sn_rnfisf   = 'eORCA12_runoff_v2.4'    ,         -12.      ,'sofwfisf' ,  .false.    , .true.  , 'yearly'  ,    ''    ,   ''     ,    ''
+   sn_rnfisf   = 'eORCA12_runoff_v2.4'  , -12.   ,'sofwfisf' ,  .false.    , .true.  , 'yearly'  ,    ''    ,   ''     ,    ''
 !* nn_isf = 2 and 3 cases 
-   sn_depmax_isf ='rnfisf'   ,         -12.      ,'sozisfmax',  .false.    , .true.  , 'yearly'  ,    ''    ,   ''     ,    ''
-   sn_depmin_isf ='rnfisf'   ,         -12.      ,'sozisfmin',  .false.    , .true.  , 'yearly'  ,    ''    ,   ''     ,    ''
+   sn_depmax_isf ='eORCA12_runoff_v2.4' , -12.   ,'sozisfmax',  .false.    , .true.  , 'yearly'  ,    ''    ,   ''     ,    ''
+   sn_depmin_isf ='eORCA12_runoff_v2.4' , -12.   ,'sozisfmin',  .false.    , .true.  , 'yearly'  ,    ''    ,   ''     ,    ''
 !* nn_isf = 2 case
    sn_Leff_isf = 'rnfisf'    ,         -12.      ,'Leff'     ,  .false.    , .true.  , 'yearly'  ,    ''    ,   ''     ,    ''
 /
@@ -564,7 +564,7 @@
 !-----------------------------------------------------------------------
 &namberg       !   iceberg parameters                                   (default: OFF)
 !-----------------------------------------------------------------------
-   ln_icebergs = .false.      ! activate iceberg floats (force =F with "key_agrif")
+   ln_icebergs = .true.       ! activate iceberg floats (force =F with "key_agrif")
    !
    !                          ! diagnostics:
    ln_bergdia        = .true.        ! Calculate budgets
@@ -599,7 +599,7 @@
    !___________!_________________________!___________________!___________!_____________!________!___________!__________________!__________!_______________!
    !           !  file name              ! frequency (hours) ! variable  ! time interp.!  clim  ! 'yearly'/ ! weights filename ! rotation ! land/sea mask !
    !           !                         !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' !                  ! pairing  !    filename   !
-   sn_icb     =  'calving'              ,         -1.        ,'calvingmask',  .true.   , .true. , 'yearly'  , ''               , ''       , ''
+   sn_icb     =  'eORCA12_calving_b2.4_v2.0' ,      -12.     ,'soicbclv',  .false.     , .true. , 'yearly'  , ''               , ''       , ''
 /
 
 !!======================================================================
