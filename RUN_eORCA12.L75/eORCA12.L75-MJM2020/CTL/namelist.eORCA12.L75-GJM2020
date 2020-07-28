@@ -862,7 +862,7 @@
       nn_cen_v   =  4            !  =2/4, vertical   2nd order CEN / 4th order COMPACT
    ln_traadv_fct = .true.  !  FCT scheme
       nn_fct_h   =  4            !  =2/4, horizontal 2nd / 4th order
-      nn_fct_v   =  2            !  =2/4, vertical   2nd / COMPACT 4th order
+      nn_fct_v   =  4            !  =2/4, vertical   2nd / COMPACT 4th order
    ln_traadv_mus = .false. !  MUSCL scheme
       ln_mus_ups = .false.       !  use upstream scheme near river mouths
    ln_traadv_ubs = .false. !  UBS scheme
@@ -1050,9 +1050,9 @@
 &namdyn_ldf    !   lateral diffusion on momentum                        (default: NO selection)
 !-----------------------------------------------------------------------
    !                       !  Type of the operator :
-   ln_dynldf_OFF = .false.     !  No operator (i.e. no explicit diffusion)
+   ln_dynldf_OFF = .true.     !  No operator (i.e. no explicit diffusion)
    ln_dynldf_lap = .false.     !    laplacian operator
-   ln_dynldf_blp = .true.      !  bilaplacian operator
+   ln_dynldf_blp = .false.      !  bilaplacian operator
    !                       !  Direction of action  :
    ln_dynldf_lev = .false.     !  iso-level
    ln_dynldf_hor = .true.      !  horizontal  (geopotential)
