@@ -35,6 +35,10 @@ save the full compatibility with the standard NEMO code.
 Following Pierre Mathiot advice I took UKMO [modifications](http://forge.ipsl.jussieu.fr/nemo/log/NEMO/branches/UKMO/NEMO_4.0_ICB_melting_temperature) in order to avoid basal melting if the ocean 
 temperature is below the freezing point. The fix is straight forward: melting is OFF if Toce less than local freezing point.
 
+#### Drakkar management for ICB restart files and trajectories
+We port the work done during the Great Challenge 2016 to this version in order to ease the model integration and files management. Impacted modules are :
+  * icb_oce.F90 : declaration of variables  `cn_icbrst_in, cn_icbrst_out, cn_icbdir_trj`
+
 
 #### Domain decomposition in mppini.F90
 We use the full eORCA12 domain, including under ice-shelf cavities, but we do not compute the flow pattern below the ice shelve so that using the standard code, southern most row of processors are
