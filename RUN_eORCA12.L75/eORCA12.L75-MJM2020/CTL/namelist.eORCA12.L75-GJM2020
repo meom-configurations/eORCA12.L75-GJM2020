@@ -70,10 +70,10 @@
 !-----------------------------------------------------------------------
 &namdom        !   time and space domain
 !-----------------------------------------------------------------------
-   ln_linssh   = .false.    !  =T  linear free surface  ==>>  model level are fixed in time
+   ln_linssh   = .true.    !  =T  linear free surface  ==>>  model level are fixed in time
    rn_isfhmin  =    1.00   !  treshold [m] to discriminate grounding ice from floating ice
    !
-   rn_rdt      =    10.   !  time step for the dynamics and tracer
+   rn_rdt      =    72.   !  time step for the dynamics and tracer
    rn_atfp     =    0.1    !  asselin time filter parameter
    !
    ln_crs      = .false.   !  Logical switch for coarsening module      (T => fill namcrs)
@@ -601,6 +601,13 @@
    !           !                         !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' !                  ! pairing  !    filename   !
    sn_icb     =  'eORCA12_calving_b2.4_v2.0' ,      -12.     ,'soicbclv',  .false.     , .true. , 'yearly'  , ''               , ''       , ''
 /
+!-----------------------------------------------------------------------
+&namberg_drk      !   drakkar iceberg parameters 
+      cn_icbrst_in             = "restart_icebergs"   ! name of restart file
+      cn_icbrst_out            = "restart_icebergs"
+      cn_icbdir_trj            = "<CN_DIRICB>"          ! name of directory for icb trajectory output!-----------------------------------------------------------------------
+/
+
 
 !!======================================================================
 !!               ***  Lateral boundary condition  ***                 !!
@@ -1025,8 +1032,8 @@
 &namdyn_hpg    !   Hydrostatic pressure gradient option                 (default: NO selection)
 !-----------------------------------------------------------------------
    ln_hpg_zco  = .false.   !  z-coordinate - full steps
-   ln_hpg_zps  = .false.   !  z-coordinate - partial steps (interpolation)
-   ln_hpg_sco  = .true.    !  s-coordinate (standard jacobian formulation)
+   ln_hpg_zps  = .true.   !  z-coordinate - partial steps (interpolation)
+   ln_hpg_sco  = .false.    !  s-coordinate (standard jacobian formulation)
    ln_hpg_isf  = .false.   !  s-coordinate (sco ) adapted to isf
    ln_hpg_djc  = .false.   !  s-coordinate (Density Jacobian with Cubic polynomial)
    ln_hpg_prj  = .false.   !  s-coordinate (Pressure Jacobian scheme)
@@ -1130,7 +1137,7 @@
 &namzdf        !   vertical physics manager                             (default: NO selection)
 !-----------------------------------------------------------------------
    !                       ! adaptive-implicit vertical advection
-   ln_zad_Aimp = .false.      !  Courant number dependent scheme (Shchepetkin 2015)
+   ln_zad_Aimp = .true.      !  Courant number dependent scheme (Shchepetkin 2015)
    !
    !                       ! type of vertical closure (required)
    ln_zdfcst   = .false.      !  constant mixing

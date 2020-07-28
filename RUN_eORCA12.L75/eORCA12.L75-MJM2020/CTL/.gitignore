@@ -1,2 +1,7 @@
 *~
 includefile.sh
+*~
+nemo*.[oe]*
+ocean.output*
+z*
+waytmp
