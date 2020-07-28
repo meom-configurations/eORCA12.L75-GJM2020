@@ -10,7 +10,7 @@ calving of icebergs will be used, sharing the input files with UKMO).
 We aim at producing a multi-decade long run (1979-2019), using JRA55 forcing.
 
 
-## 2. Setting up the code
+## 2. Setting up the code (ocean)
 ### 2.1 CPP keys:
 As of NEMO4, very few CPP keys are left in NEMO. We use the following
 
@@ -650,8 +650,19 @@ Note that the flag ln_isfcav is no more in the namelist but read from the domain
 ```
 ### 3.7 Internal Wave Mixing (Casimir de Lavergne parameterization).
 #### 3.7.1 Making of IWM files
-This parameterization requires a set of file providing information about the available energy and the length scale. Casimir provided a set of files for different model resolution and the original one on a regular 1/4 degree grid.  Romain Bourdallé Badie from MOI, used interpolation on the fly for those fields, without problems. I will follow this advice.
+This parameterization requires a set of file providing information about the available energy and the length scale. Casimir
+provided a set of files for different model resolution and the original one on a regular 1/4 degree grid.  
+Romain Bourdallé Badie from MOI, used interpolation on the fly for those fields, without problems. I would have followed this advice, but the actual
+code in NEMO needs modification for the use of `fldread` procedure. For the sake of simplicity (due to the lack of time), I will use SOSIE
+and produce the files on the `eORCA12.L75` grid, and use the original code (with hard coded file names ...).
+
 #### 3.7.2 Related namelist block
+
+## 4. Setting up the SI3 model (ICE)
+### 4.1 Rationale
+In order to set up the ice model configuration we will follow the advices of Camille Lique and Claude Talandier, having a strong expertise 
+of the arctic.  Many of their advices were also taken with regard to the choice of parameterization for the ocean (see above). In this chapter
+we only discuss choices related to the ice model.
 
 
 
