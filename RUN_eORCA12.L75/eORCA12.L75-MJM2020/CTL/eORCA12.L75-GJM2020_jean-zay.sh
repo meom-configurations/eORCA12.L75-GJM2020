@@ -7,7 +7,7 @@
 #SBATCH -e nemo_jean-zay.e%j
 #SBATCH -o nemo_jean-zay.o%j
 #SBATCH -A cli@cpu
-#SBATCH --time=1:30:00
+#SBATCH --time=3:30:00
 #SBATCH --exclusive
 
 set -x

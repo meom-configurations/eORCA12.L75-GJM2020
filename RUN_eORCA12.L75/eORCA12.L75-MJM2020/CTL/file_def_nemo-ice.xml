@@ -9,7 +9,7 @@
 ============================================================================================================
  -->
     
- <file_definition type="multiple_file" name="/scratch/cnt0024/hmg2840/molines/eORCA12.L75-GJM2020-XIOS.1/@expname@_@freq@" sync_freq="1d" min_digits="4">
+ <file_definition type="multiple_file" name="<OUTDIR>/@expname@_@freq@" sync_freq="1d" min_digits="4">
 
    
    <file_group id="5d" output_freq="5d"  split_freq="5d" output_level="10" enabled=".TRUE.">  <!-- 5d files -->   	
@@ -90,10 +90,10 @@
        <field field_ref="icettop_cat"      name="sitopcat"/>
        
        <!-- global attributes -->
-       <variable name="start_date"       type="int">19920101    </variable>
-       <variable name="output_frequency" type="string">5h       </variable>
-       <variable name="CONFIG"           type="string">eORCA12.L75 </variable>
-       <variable name="CASE"             type="string">GJM2020   </variable>
+       <variable name="start_date"       type="int"><NDATE0>    </variable>
+       <variable name="output_frequency" type="string">5d       </variable>
+       <variable name="CONFIG"           type="string"><CONFIG> </variable>
+       <variable name="CASE"             type="string"><CASE>   </variable>
 
      </file>
      
@@ -122,10 +122,10 @@
        <field field_ref="ibgfrchfxbot"      name="ibgfrchfxbot" />
 
        <!-- global attributes -->
-       <variable name="start_date"       type="int">19920101    </variable>
-       <variable name="output_frequency" type="string">5h       </variable>
-       <variable name="CONFIG"           type="string">eORCA12.L75 </variable>
-       <variable name="CASE"             type="string">GJM2020   </variable>
+       <variable name="start_date"       type="int"><NDATE0>    </variable>
+       <variable name="output_frequency" type="string">5d       </variable>
+       <variable name="CONFIG"           type="string"><CONFIG> </variable>
+       <variable name="CASE"             type="string"><CASE>   </variable>
 
      </file>
      

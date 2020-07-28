@@ -89,7 +89,12 @@ CONTAINS
       !                          ! note that we choose to do this on all processors since we cannot
       !                          ! predict where icebergs will be ahead of time
       IF( nn_verbose_level > 0) THEN
+#if defined key_drakkar
+         CALL ctl_opn( numicb, 'icebergs.stat', 'REPLACE', 'FORMATTED', 'SEQUENTIAL', -1, numout, lwp, narea, &
+              &   TRIM(cn_icbdir_trj))
+#else
          CALL ctl_opn( numicb, 'icebergs.stat', 'REPLACE', 'FORMATTED', 'SEQUENTIAL', -1, numout, lwp, narea )
+#endif
       ENDIF
 
       ! set parameters (mostly from namelist)
@@ -383,6 +388,10 @@ CONTAINS
          &              rn_bits_erosion_fraction        , rn_sicn_shift       , ln_passive_mode      ,   &
          &              ln_time_average_weight          , nn_test_icebergs    , rn_test_box          ,   &
          &              ln_use_calving , rn_speed_limit , cn_dir, sn_icb
+#if defined key_drakkar
+      CHARACTER(LEN=20) :: cl_no
+      NAMELIST/namberg_drk/ cn_icbrst_in,  cn_icbrst_out, cn_icbdir_trj
+#endif
       !!----------------------------------------------------------------------
 
 #if defined key_agrif
@@ -410,6 +419,23 @@ CONTAINS
       READ  ( numnam_cfg, namberg, IOSTAT = ios, ERR = 902 )
 902   IF( ios >  0 ) CALL ctl_nam ( ios , 'namberg in configuration namelist' )
       IF(lwm) WRITE ( numond, namberg )
+#if defined key_drakkar
+      REWIND( numnam_ref )              ! Namelist namberg in reference namelist : Iceberg parameters
+      READ  ( numnam_ref, namberg_drk, IOSTAT = ios, ERR = 903)
+903   IF( ios /= 0 ) CALL ctl_nam ( ios , 'namberg_drk in reference namelist' )
+      REWIND( numnam_cfg )              ! Namelist namberg in configuration namelist : Iceberg parameters
+      READ  ( numnam_cfg, namberg_drk, IOSTAT = ios, ERR = 904 )
+904   IF( ios >  0 ) CALL ctl_nam ( ios , 'namberg_drk in configuration namelist' )
+      IF(lwm) WRITE ( numond, namberg_drk )
+      ! set name full path of icb restart files
+      !  NEMO reads restart files :<CN_ICERST_INDIR>.<<nn_no-1>>/<CN_ICERST_IN>-<<nn_no -1 >>_<RANK>.nc
+      WRITE(cl_no,*) nn_no-1 ; cl_no = TRIM(ADJUSTL(cl_no) )
+      cn_icbrst_in= TRIM(cn_icbrst_in)//'-'//TRIM(cl_no)
+      !  NEMO write restart files :<CN_ICERST_OUTDIR>.<<nn_no>>/<CN_ICERST_OUT>-<<nn_no >>_<RANK>.nc
+      WRITE(cl_no,*) nn_no   ; cl_no = TRIM(ADJUSTL(cl_no) )
+      cn_icbrst_out= TRIM(cn_icbrst_out)//'-'//TRIM(cl_no)
+
+#endif
       !
       IF(lwp) WRITE(numout,*)
       IF( ln_icebergs ) THEN

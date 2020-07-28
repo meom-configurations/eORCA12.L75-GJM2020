@@ -145,6 +145,10 @@ MODULE icb_oce
 
    REAL(wp), PUBLIC, ALLOCATABLE, SAVE, DIMENSION(:,:,:)   :: griddata                           !: work array for icbrst
 
+#if defined key_drakkar
+   CHARACTER(LEN=255), PUBLIC  :: cn_icbrst_in, cn_icbrst_out, cn_icbdir_trj
+#endif
+
    !!----------------------------------------------------------------------
    !! NEMO/OCE 4.0 , NEMO Consortium (2018)
    !! $Id: icb_oce.F90 10702 2019-02-20 09:44:07Z mathiot $
