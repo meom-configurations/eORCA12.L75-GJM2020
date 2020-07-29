@@ -70,10 +70,10 @@
 !-----------------------------------------------------------------------
 &namdom        !   time and space domain
 !-----------------------------------------------------------------------
-   ln_linssh   = .true.    !  =T  linear free surface  ==>>  model level are fixed in time
+   ln_linssh   = .false.    !  =T  linear free surface  ==>>  model level are fixed in time
    rn_isfhmin  =    1.00   !  treshold [m] to discriminate grounding ice from floating ice
    !
-   rn_rdt      =    72.   !  time step for the dynamics and tracer
+   rn_rdt      =    450.   !  time step for the dynamics and tracer
    rn_atfp     =    0.1    !  asselin time filter parameter
    !
    ln_crs      = .false.   !  Logical switch for coarsening module      (T => fill namcrs)
@@ -603,6 +603,7 @@
 /
 !-----------------------------------------------------------------------
 &namberg_drk      !   drakkar iceberg parameters 
+!-----------------------------------------------------------------------
       cn_icbrst_in             = "restart_icebergs"   ! name of restart file
       cn_icbrst_out            = "restart_icebergs"
       cn_icbdir_trj            = "<CN_DIRICB>"          ! name of directory for icb trajectory output!-----------------------------------------------------------------------
@@ -1032,8 +1033,8 @@
 &namdyn_hpg    !   Hydrostatic pressure gradient option                 (default: NO selection)
 !-----------------------------------------------------------------------
    ln_hpg_zco  = .false.   !  z-coordinate - full steps
-   ln_hpg_zps  = .true.   !  z-coordinate - partial steps (interpolation)
-   ln_hpg_sco  = .false.    !  s-coordinate (standard jacobian formulation)
+   ln_hpg_zps  = .false.   !  z-coordinate - partial steps (interpolation)
+   ln_hpg_sco  = .true.    !  s-coordinate (standard jacobian formulation)
    ln_hpg_isf  = .false.   !  s-coordinate (sco ) adapted to isf
    ln_hpg_djc  = .false.   !  s-coordinate (Density Jacobian with Cubic polynomial)
    ln_hpg_prj  = .false.   !  s-coordinate (Pressure Jacobian scheme)
@@ -1159,7 +1160,7 @@
       rn_hsbfr =    1.6       !  heat/salt buoyancy flux ratio
    !
    !                       ! gravity wave-driven vertical mixing
-   ln_zdfiwm   = .false.      ! internal wave-induced mixing            (T =>   fill namzdf_iwm)
+   ln_zdfiwm   = .true.       ! internal wave-induced mixing            (T =>   fill namzdf_iwm)
    ln_zdfswm   = .false.      ! surface  wave-induced mixing            (T => ln_wave=ln_sdw=T )
    !
    !                       ! coefficients
@@ -1254,6 +1255,20 @@
    nn_zpyc     = 1         !  pycnocline-intensified dissipation scales as N (=1) or N^2 (=2)
    ln_mevar    = .true.    !  variable (T) or constant (F) mixing efficiency
    ln_tsdiff   = .true.    !  account for differential T/S mixing (T) or not (F)
+/
+!-----------------------------------------------------------------------
+&namzdf_iwm_drk  !    internal wave-driven mixing parameterization      (ln_zdfiwm =T)
+!-----------------------------------------------------------------------
+   cn_dir     =  './'
+   !___________!_________________________!___________________!___________!_____________!________!___________!__________________!__________!_______________!
+   !           !  file name              ! frequency (hours) ! variable  ! time interp.!  clim  ! 'yearly'/ ! weights filename ! rotation ! land/sea mask !
+   !           !                         !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' !                  ! pairing  !    filename   !
+   sn_iwmdsc   = 'eORCA12.L75_IWM_fields_CDL' ,  12.         , 'decay_scale_cri' , .false.  , .true. , 'yearly'  , ''               , ''       , ''
+   sn_iwmdsb   = 'eORCA12.L75_IWM_fields_CDL' ,  12.         , 'decay_scale_bot' , .false.  , .true. , 'yearly'  , ''               , ''       , ''
+   sn_iwmmpc   = 'eORCA12.L75_IWM_fields_CDL' ,  12.         , 'mixing_power_cri', .false.  , .true. , 'yearly'  , ''               , ''       , ''
+   sn_iwmmpp   = 'eORCA12.L75_IWM_fields_CDL' ,  12.         , 'mixing_power_pyc', .false.  , .true. , 'yearly'  , ''               , ''       , ''
+   sn_iwmmpb   = 'eORCA12.L75_IWM_fields_CDL' ,  12.         , 'mixing_power_bot', .false.  , .true. , 'yearly'  , ''               , ''       , ''
+
 /
 
 !!======================================================================
