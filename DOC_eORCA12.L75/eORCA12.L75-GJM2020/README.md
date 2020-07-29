@@ -220,12 +220,14 @@ In the North Sea, along UK coast (??).
 
 ### 2.3 Modification with respect to standard NEMO
 #### 2.3.1 ICB module
-Following Pierre Mathiot advice I took UKMO [modifications](http://forge.ipsl.jussieu.fr/nemo/log/NEMO/branches/UKMO/NEMO_4.0_ICB_melting_temperature) in order to avoid basal melting if the ocean 
+  * Following Pierre Mathiot advice I took UKMO [modifications](http://forge.ipsl.jussieu.fr/nemo/log/NEMO/branches/UKMO/NEMO_4.0_ICB_melting_temperature) in order to avoid basal melting if the ocean 
 temperature is below the freezing point. The fix is straight forward: melting is OFF if Toce less than local freezing point.
 
-#### Drakkar management for ICB restart files and trajectories
+  * Drakkar management for ICB restart files and trajectories:
 We port the work done during the Great Challenge 2016 to this version in order to ease the model integration and files management. Impacted modules are :
-  * icb_oce.F90 : declaration of variables  `cn_icbrst_in, cn_icbrst_out, cn_icbdir_trj`
+     * icb_oce.F90 : declaration of variables  `cn_icbrst_in, cn_icbrst_out, cn_icbdir_trj`
+     * icbini.F90 : read new variables in the namberg_drk namelist
+     * icbrst.F90 : implementation of new restart names
 
 
 #### 2.3.2 Domain decomposition in mppini.F90
@@ -257,6 +259,11 @@ almost useless.
   * Gulf of Cadix
   * Gulf of Aden
   * Gulf of Oman
+
+#### 2.3.6 zdfiwm.F90
+The code was modified in order to be able to read the file names and variables name in the namelist, through a `sn` structure, even though the full
+implementation with `fldread` is not yet done. In the RUNTOOLS, function `getzdfiwm` have been updated in order to be consistent with the new
+coding.
    
 ## 3. Input data files
 ### 3.1 Configuration files
@@ -654,11 +661,12 @@ Note that the flag ln_isfcav is no more in the namelist but read from the domain
 ```
 ### 3.7 Internal Wave Mixing (Casimir de Lavergne parameterization).
 #### 3.7.1 Making of IWM files
-This parameterization requires a set of file providing information about the available energy and the length scale. Casimir
+  * This parameterization requires a set of file providing information about the available energy and the length scale. Casimir
 provided a set of files for different model resolution and the original one on a regular 1/4 degree grid.  
 Romain Bourdallé Badie from MOI, used interpolation on the fly for those fields, without problems. I would have followed this advice, but the actual
 code in NEMO needs modification for the use of `fldread` procedure. For the sake of simplicity (due to the lack of time), I will use SOSIE
-and produce the files on the `eORCA12.L75` grid, and use the original code (with hard coded file names ...).
+and produce the files on the `eORCA12.L75` grid. 
+  * module zdfiwm was modified in order to specify the names of files and variables in the namelist instead of having them hard coded (see 2.3.6)
 
 #### 3.7.2 Related namelist block
 
