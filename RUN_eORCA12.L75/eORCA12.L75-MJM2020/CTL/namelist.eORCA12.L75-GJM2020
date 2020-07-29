@@ -414,8 +414,8 @@
 &namtra_qsr    !   penetrative solar radiation                          (ln_traqsr =T)
 !-----------------------------------------------------------------------
    !                       !  type of penetration                        (default: NO selection)
-   ln_qsr_rgb  = .false.      !  RGB light penetration (Red-Green-Blue)
-   ln_qsr_2bd  = .true.       !  2BD light penetration (two bands)
+   ln_qsr_rgb  = .true.       !  RGB light penetration (Red-Green-Blue)
+   ln_qsr_2bd  = .false.      !  2BD light penetration (two bands)
    ln_qsr_bio  = .false.      !  bio-model light penetration
    !                       !  RGB & 2BD choices:
    rn_abs      =   0.53       !  RGB & 2BD: fraction absorbed in the very near surface  ! std value 0.58. RBB -> 0.53
