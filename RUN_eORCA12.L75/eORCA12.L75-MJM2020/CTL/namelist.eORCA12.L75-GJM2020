@@ -427,7 +427,7 @@
    !___________!_________________________!___________________!___________!_____________!________!___________!__________!__________!_______________!
    !           !  file name              ! frequency (hours) ! variable  ! time interp.!  clim  ! 'yearly'/ ! weights  ! rotation ! land/sea mask !
    !           !                         !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' ! filename ! pairing  !    filename   !
-   sn_chl      = 'merged_ESACCI_BIOMER4V1R1_CHL_REG05' , -1. , 'CHLA'    ,   .true.    , .true. , 'yearly'  , ''       , ''       , ''
+   sn_chl      = 'merged_ESACCI_BIOMER4V1R1_CHL_REG05' , -1. , 'CHLA'    ,   .true.    , .true. , 'yearly'  , ' wght_ESACCI_eORCA12_bilin.nc'       , ''       , ''
 /
 !-----------------------------------------------------------------------
 &namsbc_ssr    !   surface boundary condition : sea surface restoring   (ln_ssr =T)
