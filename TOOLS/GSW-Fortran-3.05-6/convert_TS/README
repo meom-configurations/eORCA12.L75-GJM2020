@@ -1,0 +1,12 @@
+Compiling convert_TS: (Nov19)
+~~~~~~~~~~~~~~~~~~~~~
+
+The cray compiler does not like the format of the table use for the equation of state so I compiled it with the gnu compiler.
+
+module load cray-netcdf
+module switch PrgEnv-cray PrgEnv-gnu
+
+
+How to use conver_TS:
+~~~~~~~~~~~~~~~~~~~~
+./convert_TS ${filein} ${fileout} temperature_variable salinity_variable

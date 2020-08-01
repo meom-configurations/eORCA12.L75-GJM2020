@@ -1,0 +1,3 @@
+This code was slighty modified according to James Orr suggestion, in order to compile with ifort compiler.
+
+Original code, has too long data lines that made the compiler crash.

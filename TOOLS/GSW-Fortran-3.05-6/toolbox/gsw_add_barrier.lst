@@ -1,0 +1,205 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                          S u m m a r y   R e p o r t
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Compilation
+-----------
+File     : /small/home/d02/frcg/TEOS10/GSW-Fortran-3.05-6/convert_TS/../toolbox/gsw_add_barrier.f90
+Compiled : 11/26/19  16:30:46
+Compiler : Version 8.3.4
+Ftnlx    : Version 8318 (libcif 83016)
+Target   : x86-64
+Command  : ftn_driver.exe -hcpu=haswell -hstatic -D__CRAYXC -D__CRAY_HASWELL
+           -D__CRAYXT_COMPUTE_LINUX_TARGET -hnetwork=aries -I../modules -O2 -rs
+           -c -o../toolbox/gsw_add_barrier.o
+           -I/opt/cray/cce/8.3.4/craylibs/x86-64/include
+           -I/opt/cray/hdf5/1.8.13/CRAY/83/include
+           -I/opt/cray/netcdf/4.3.2/CRAY/83/include
+           -I/opt/cray/mpt/7.0.4/gni/mpich2-cray/83/include
+           -I/opt/cray/libsci/13.0.1/CRAY/83/haswell/include
+           -I/opt/cray/rca/1.0.0-2.0502.60530.1.62.ari/include
+           -I/opt/cray/alps/5.2.4-2.0502.9774.31.11.ari/include
+           -I/opt/cray/xpmem/0.1-2.0502.64982.5.3.ari/include
+           -I/opt/cray/gni-headers/4.0-1.0502.10859.7.8.ari/include
+           -I/opt/cray/dmapp/7.0.1-1.0502.11080.8.76.ari/include
+           -I/opt/cray/pmi/5.0.5-1.0000.10300.134.8.ari/include
+           -I/opt/cray/ugni/6.0-1.0502.10863.8.29.ari/include
+           -I/opt/cray/udreg/2.3.2-1.0502.10518.2.17.ari/include
+           -I/opt/cray/cce/8.3.4/craylibs/x86-64/pkgconfig/../include
+           -I/opt/cray/cce/8.3.4/craylibs/x86-64/include
+           -I/opt/cray/wlm_detect/1.0-1.0502.64649.2.1.ari/include
+           -I/opt/cray/krca/1.0.0-2.0502.63139.4.31.ari/include
+           -I/opt/cray-hss-devel/7.2.0/include ../toolbox/gsw_add_barrier.f90
+
+ftnlx report
+------------
+Source   : /small/home/d02/frcg/TEOS10/GSW-Fortran-3.05-6/convert_TS/../toolbox/gsw_add_barrier.f90
+Date     : 11/26/2019  16:30:46
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                          S o u r c e   L i s t i n g
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    1.    !==========================================================================
+    2.    pure subroutine gsw_add_barrier (input_data, long, lat, long_grid, &
+    3.                                  lat_grid, dlong_grid, dlat_grid, output_data)
+    4.    !==========================================================================
+    5.    !
+    6.    !  Adds a barrier through Central America (Panama) and then averages
+    7.    !  over the appropriate side of the barrier
+    8.    ! 
+    9.    !  data_in      : data                                            [unitless]
+   10.    !  long         : Long of data in decimal degs east               [ 0 ... +360 ]
+   11.    !  lat          : Lat of data in decimal degs north               [-90 ... +90 ]
+   12.    !  longs_grid   : Long of regular grid in decimal degs east       [ 0 ... +360 ]
+   13.    !  lats_grid    : Lat of regular grid in decimal degs north       [-90 ... +90 ]
+   14.    !  dlongs_grid  : Long difference of regular grid in decimal degs [ deg long ]
+   15.    !  dlats_grid   : Lat difference of regular grid in decimal degs  [ deg lat ]
+   16.    !
+   17.    ! output_data   : average of data depending on which side of the 
+   18.    !                 Panama canal it is on                           [unitless]
+   19.    !--------------------------------------------------------------------------
+   20.    
+   21.    use gsw_mod_toolbox, only : gsw_util_indx
+              ^                                     
+ftn-292 ftn: ERROR GSW_ADD_BARRIER, File = gsw_add_barrier.f90, Line = 21, Column = 5 
+  "GSW_MOD_TOOLBOX" is specified as the module name on a USE statement, but the compiler cannot find it.
+
+   22.    
+   23.    use gsw_mod_saar_data
+              ^                 
+ftn-292 ftn: ERROR GSW_ADD_BARRIER, File = gsw_add_barrier.f90, Line = 23, Column = 5 
+  "GSW_MOD_SAAR_DATA" is specified as the module name on a USE statement, but the compiler cannot find it.
+
+   24.    
+   25.    use gsw_mod_kinds
+              ^             
+ftn-292 ftn: ERROR GSW_ADD_BARRIER, File = gsw_add_barrier.f90, Line = 25, Column = 5 
+  "GSW_MOD_KINDS" is specified as the module name on a USE statement, but the compiler cannot find it.
+
+   26.    
+   27.    implicit none
+   28.    
+   29.    real (r8), intent(in) :: long, lat, long_grid, lat_grid, dlong_grid
+                ^                                                             
+ftn-113 ftn: ERROR GSW_ADD_BARRIER, File = gsw_add_barrier.f90, Line = 29, Column = 7 
+  IMPLICIT NONE is specified in the local scope, therefore an explicit type must be specified for data object "R8".
+
+                ^                                                             
+ftn-868 ftn: ERROR GSW_ADD_BARRIER, File = gsw_add_barrier.f90, Line = 29, Column = 7 
+  "R8" is used in a constant expression, therefore it must be a constant.
+
+   30.    real (r8), intent(in) :: dlat_grid
+                ^                            
+ftn-868 ftn: ERROR GSW_ADD_BARRIER, File = gsw_add_barrier.f90, Line = 30, Column = 7 
+  "R8" is used in a constant expression, therefore it must be a constant.
+
+   31.    real (r8), intent(in), dimension(4) :: input_data
+                ^                                           
+ftn-868 ftn: ERROR GSW_ADD_BARRIER, File = gsw_add_barrier.f90, Line = 31, Column = 7 
+  "R8" is used in a constant expression, therefore it must be a constant.
+
+   32.    real (r8), intent(out), dimension(4) :: output_data
+                ^                                             
+ftn-868 ftn: ERROR GSW_ADD_BARRIER, File = gsw_add_barrier.f90, Line = 32, Column = 7 
+  "R8" is used in a constant expression, therefore it must be a constant.
+
+   33.    
+   34.    integer, dimension(4) :: above_line
+   35.    integer :: k, nmean, above_line0, kk
+   36.    real (r8) :: r, lats_line, data_mean
+                ^                              
+ftn-868 ftn: ERROR GSW_ADD_BARRIER, File = gsw_add_barrier.f90, Line = 36, Column = 7 
+  "R8" is used in a constant expression, therefore it must be a constant.
+
+   37.    
+   38.    call gsw_util_indx(longs_pan,npan,long,k)                !   the long/lat point
+                             ^                                                            
+ftn-113 ftn: ERROR GSW_ADD_BARRIER, File = gsw_add_barrier.f90, Line = 38, Column = 20 
+  IMPLICIT NONE is specified in the local scope, therefore an explicit type must be specified for data object "LONGS_PAN".
+
+                                       ^                                                  
+ftn-113 ftn: ERROR GSW_ADD_BARRIER, File = gsw_add_barrier.f90, Line = 38, Column = 30 
+  IMPLICIT NONE is specified in the local scope, therefore an explicit type must be specified for data object "NPAN".
+
+   39.    r = (long-longs_pan(k))/(longs_pan(k+1)-longs_pan(k))
+   40.    lats_line = lats_pan(k) + r*(lats_pan(k+1)-lats_pan(k))
+   41.    
+   42.    if (lats_line.le.lat) then
+   43.       above_line0 = 1
+   44.    else
+   45.       above_line0 = 0
+   46.    end if
+   47.    
+   48.    call gsw_util_indx(longs_pan,npan,long_grid,k)       ! the 1 and 4 long/lat pts
+   49.    r = (long_grid-longs_pan(k))/(longs_pan(k+1)-longs_pan(k))
+   50.    lats_line = lats_pan(k) + r*(lats_pan(k+1)-lats_pan(k))
+   51.    
+   52.    if (lats_line.le.lat_grid) then
+   53.       above_line(1) = 1
+   54.    else
+   55.       above_line(1) = 0
+   56.    end if
+   57.    
+   58.    if (lats_line.le.lat_grid+dlat_grid) then
+   59.       above_line(4) = 1
+   60.    else
+   61.       above_line(4) = 0
+   62.    end if
+   63.    
+   64.    call gsw_util_indx(longs_pan,npan,long_grid+dlong_grid,k)    ! the 2 & 3 points 
+   65.    r = (long_grid+dlong_grid-longs_pan(k))/(longs_pan(k+1)-longs_pan(k))
+   66.    lats_line = lats_pan(k) + r*(lats_pan(k+1)-lats_pan(k))
+   67.    
+   68.    if (lats_line.le.lat_grid) then
+   69.       above_line(2) = 1
+   70.    else
+   71.       above_line(2) = 0
+   72.    end if
+   73.    
+   74.    if (lats_line.le.lat_grid+dlat_grid) then
+   75.       above_line(3) = 1
+   76.    else
+   77.       above_line(3) = 0
+   78.    end if
+   79.    
+   80.    nmean = 0 
+   81.    data_mean = 0.0_r8
+   82.    
+   83.    do kk = 1,4
+   84.       if ((abs(input_data(kk)).le.100._r8).and.above_line0.eq.above_line(kk)) then
+                                         ^                                                
+ftn-129 ftn: ERROR GSW_ADD_BARRIER, File = gsw_add_barrier.f90, Line = 84, Column = 32 
+  The kind type parameter must be a scalar integer constant.
+
+   85.          nmean = nmean + 1
+   86.          data_mean = data_mean + input_data(kk)
+   87.       end if
+   88.    end do
+   89.    
+   90.    if (nmean .eq. 0)then
+   91.       data_mean = 0.0_r8    !errorreturn
+   92.    else
+   93.       data_mean = data_mean/nmean
+   94.    endif
+   95.    
+   96.    do kk = 1,4
+   97.       if ((abs(input_data(kk)).ge.1e10_r8).or.above_line0.ne.above_line(kk)) then
+                                         ^                                               
+ftn-129 ftn: ERROR GSW_ADD_BARRIER, File = gsw_add_barrier.f90, Line = 97, Column = 32 
+  The kind type parameter must be a scalar integer constant.
+
+   98.          output_data(kk) = data_mean
+   99.       else
+  100.          output_data(kk) = input_data(kk)
+  101.       end if
+  102.    end do
+  103.    
+  104.    return
+  105.    end subroutine
+  106.    
+  107.    !--------------------------------------------------------------------------
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
