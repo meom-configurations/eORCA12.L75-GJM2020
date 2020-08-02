@@ -73,7 +73,10 @@
    ln_linssh   = .false.    !  =T  linear free surface  ==>>  model level are fixed in time
    rn_isfhmin  =    1.00   !  treshold [m] to discriminate grounding ice from floating ice
    !
-   rn_rdt      =    450.   !  time step for the dynamics and tracer
+!  rn_rdt      =    72.    !  time step for the dynamics and tracer :1 day
+!  rn_rdt      =    180.    !  time step for the dynamics and tracer 2 days x2 ( last 2 with linssh off
+!  rn_rdt      =    450.    !  time step for the dynamics and tracer 25 days
+   rn_rdt      =    600.    !  time step for the dynamics and tracer 25 days
    rn_atfp     =    0.1    !  asselin time filter parameter
    !
    ln_crs      = .false.   !  Logical switch for coarsening module      (T => fill namcrs)
@@ -125,11 +128,15 @@
    !           !  file name                          ! frequency (hours) ! variable  ! time interp.!  clim  ! 'yearly'/ ! weights     ! rotation ! land/sea mask !
    !           !                                     !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' !   filename  ! pairing  !    filename   !
    ! data used for initial condition (istate)
-   sn_tem_ini  = 'eORCA12.L75_EN4.2.1g10_1995-2014_CT_extd' , -12.      , 'votemper',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
-   sn_sal_ini  = 'eORCA12.L75_EN4.2.1g10_1995-2014_SA_extd' , -12.      , 'vosaline',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
+   sn_tem_ini  = 'eORCA12.L75_EN4.2.1g10_1995-2014_votemper_extd' , -12.      , 'votemper',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
+   sn_sal_ini  = 'eORCA12.L75_EN4.2.1g10_1995-2014_vosaline_extd' , -12.      , 'vosaline',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
+!  sn_tem_ini  = 'eORCA12.L75_EN4.2.1g10_1995-2014_CT_extd' , -12.      , 'CT',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
+!  sn_sal_ini  = 'eORCA12.L75_EN4.2.1g10_1995-2014_SA_extd' , -12.      , 'SA',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
    ! data used for damping ( tradmp)
-   sn_tem_dmp  = 'eORCA12.L75_EN4.2.1g10_1995-2014_CT_extd' , -12.      , 'votemper',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
-   sn_sal_dmp  = 'eORCA12.L75_EN4.2.1g10_1995-2014_SA_extd' , -12.      , 'vosaline',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
+!  sn_tem_dmp  = 'eORCA12.L75_EN4.2.1g10_1995-2014_CT_extd' , -12.      , 'CT',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
+!  sn_sal_dmp  = 'eORCA12.L75_EN4.2.1g10_1995-2014_SA_extd' , -12.      , 'SA',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
+   sn_tem_dmp  = 'eORCA12.L75_EN4.2.1g10_1995-2014_votemper_extd' , -12.      , 'votemper',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
+   sn_sal_dmp  = 'eORCA12.L75_EN4.2.1g10_1995-2014_vosaline_extd' , -12.      , 'vosaline',  .false.  , .true.   , 'yearly'  , '' , ' '      , ' '
    !
 /
 !-----------------------------------------------------------------------

@@ -53,7 +53,7 @@
    ln_dynADV2D      = .false.         !  dyn.: only advection 2D w prescribed vel.(rn_uvice + advection)
       rn_uice       =   0.5           !        prescribed ice u-velocity
       rn_vice       =   0.5           !        prescribed ice v-velocity
-   rn_ishlat        =   2.            !  lbc : free slip (0) ; partial slip (0-2) ; no slip (2) ; strong slip (>2)
+   rn_ishlat        =   0.            !  lbc : free slip (0) ; partial slip (0-2) ; no slip (2) ; strong slip (>2)
    ln_landfast_L16  = .false.         !  landfast: parameterization from Lemieux 2016
       rn_depfra     =   0.125         !        fraction of ocean depth that ice must reach to initiate landfast
                                       !          recommended range: [0.1 ; 0.25]
@@ -91,7 +91,7 @@
 !------------------------------------------------------------------------------
    ln_rhg_EVP       = .true.          !  EVP rheology
       ln_aEVP       = .false.         !     adaptive rheology (Kimmritz et al. 2016 & 2017)
-      rn_creepl     =   2.0e-9        !     creep limit [1/s]
+      rn_creepl     =   1.0e-12       !     creep limit [1/s]
       rn_ecc        =   2.0           !     eccentricity of the elliptical yield curve          
       nn_nevp       = 120             !     number of EVP subcycles                             
       rn_relast     =   0.333         !     ratio of elastic timescale to ice time step: Telast = dt_ice * rn_relast 
@@ -107,7 +107,7 @@
 !------------------------------------------------------------------------------
 &namsbc         !   Ice surface boundary conditions
 !------------------------------------------------------------------------------
-   rn_cio           =   5.0e-03       !  ice-ocean drag coefficient (-)
+   rn_cio           =   1.0e-02       !  ice-ocean drag coefficient (-)
    rn_blow_s        =   0.66          !  mesure of snow blowing into the leads
                                       !     = 1 => no snow blowing, < 1 => some snow blowing
    nn_flxdist       =  -1             !  Redistribute heat flux over ice categories
@@ -132,7 +132,7 @@
    ln_zdf_BL99      = .true.          !  Heat diffusion follows Bitz and Lipscomb 1999
    ln_cndi_U64      = .false.         !  sea ice thermal conductivity: k = k0 + beta.S/T            (Untersteiner, 1964)
    ln_cndi_P07      = .true.          !  sea ice thermal conductivity: k = k0 + beta1.S/T - beta2.T (Pringle et al., 2007)
-   rn_cnd_s         =   0.31          !  thermal conductivity of the snow (0.31 W/m/K, Maykut and Untersteiner, 1971)
+   rn_cnd_s         =   0.2           !  thermal conductivity of the snow (0.31 W/m/K, Maykut and Untersteiner, 1971)
                                       !     Obs: 0.1-0.5 (Lecomte et al, JAMES 2013)
    rn_kappa_i       =   1.0           !  radiation attenuation coefficient in sea ice [1/m]
 /
