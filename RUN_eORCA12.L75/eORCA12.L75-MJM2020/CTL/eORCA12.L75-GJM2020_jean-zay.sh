@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --nodes=220
+#SBATCH --nodes=218
 #SBATCH --ntasks=8080
 #SBATCH --ntasks-per-node=40
 #SBATCH --hint=nomultithread  
@@ -22,9 +22,9 @@ CTL_DIR=$PDIR/RUN_${CONFIG}/${CONFCASE}/CTL
 export  FORT_FMT_RECL=255
 
 # Following numbers must be consistant with the header of this job
-export NB_NPROC=8000   # number of cores used for NEMO
+export NB_NPROC=8320   # number of cores used for NEMO
 export NB_NPROC_IOS=80  # number of cores used for xios (number of xios_server.exe)
-export NB_NCORE_DP=4   # activate depopulated core computation for XIOS. If not 0, RUN_DP is
+export NB_NCORE_DP=8   # activate depopulated core computation for XIOS. If not 0, RUN_DP is
                        # the number of cores used by XIOS on each exclusive node.
 # Rebuild process 
 export MERGE=0         # 1 = on the fly rebuild, 0 = dedicated job

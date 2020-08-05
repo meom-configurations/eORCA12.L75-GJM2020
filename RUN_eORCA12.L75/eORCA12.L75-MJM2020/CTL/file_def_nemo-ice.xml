@@ -10,120 +10,75 @@
  -->
     
  <file_definition type="multiple_file" name="<OUTDIR>/@expname@_@freq@" sync_freq="1d" min_digits="4">
-
    
-   <file_group id="5d" output_freq="5d"  split_freq="5d" output_level="10" enabled=".TRUE.">  <!-- 5d files -->   	
+   <file_group id="1d" output_freq="1d"  split_freq="1d" output_level="10" enabled=".TRUE.">  <!-- 1d files -->   	
      <file id="file21" name_suffix="_icemod" description="ice variables" enabled=".true." >
+           <!-- general -->
+           <field field_ref="icevolu"          name="sivolu"     long_name="ice volume"          />
+           <field field_ref="snwvolu"          name="snvolu"     long_name="snow volume"         />
+           <field field_ref="icesalt"          name="sisali"     long_name="Mean ice salinity"   />
+           <field field_ref="iceage"           name="siages"     long_name="Mean ice age"        />
+           <field field_ref="iceconc"          name="siconc"     long_name="ice concentration"   />
+           <field field_ref="icethic"          name="sithic"     long_name="Ice thickness"       />
+           <field field_ref="snwthic"          name="snthic"     long_name="Snow thickness"      />
 
-       <!-- ice mask -->
-       <field field_ref="icemask"          name="simsk"   />
-       <field field_ref="icemask05"        name="simsk05" />
-       <field field_ref="icemask15"        name="simsk15" />
-       
-       <!-- general -->
-       <field field_ref="snwvolu"          name="snvolu" />
-       <field field_ref="icethic"          name="sithic" />
-       <field field_ref="icevolu"          name="sivolu" />
-       <field field_ref="iceconc"          name="siconc" />
-       <field field_ref="icesalt"          name="sisali" />
-       <field field_ref="iceapnd"          name="siapnd" />
-       <field field_ref="icevpnd"          name="sivpnd" />
-       <field field_ref="sst_m"            name="sst_m"  />
-       <field field_ref="sss_m"            name="sss_m"  />
-       
-       <!-- heat -->
-       <field field_ref="icetemp"          name="sitemp" />
-       <field field_ref="snwtemp"          name="sntemp" />
-       <field field_ref="icettop"          name="sittop" />
-       <field field_ref="icetbot"          name="sitbot" />
-       <field field_ref="icetsni"          name="sitsni" />
-       
-       <!-- momentum -->
-       <field field_ref="uice"             name="sivelu"  />
-       <field field_ref="vice"             name="sivelv"  />
-       <field field_ref="icevel"           name="sivelo"  />
-       <field field_ref="utau_ai"          name="utau_ai" />
-       <field field_ref="vtau_ai"          name="vtau_ai" />
-       <field field_ref="utau_oi"          name="utau_oi" />
-       <field field_ref="vtau_oi"          name="vtau_oi" />
-       
-       <!-- rheology -->
-       <field field_ref="icediv"           name="sidive"  />
-       <field field_ref="iceshe"           name="sishea"  />
-       <field field_ref="icestr"           name="sistre"  />
-       <field field_ref="normstr"          name="normstr" />
-       <field field_ref="sheastr"          name="sheastr" />
-       <field field_ref="isig1"            name="isig1"   />
-       <field field_ref="isig2"            name="isig2"   />
-       <field field_ref="isig3"            name="isig3"   />
-       
-       <!-- heat fluxes -->
-       <field field_ref="qt_oce_ai"        name="qt_oce_ai"  />
-       <field field_ref="qt_atm_oi"        name="qt_atm_oi"  />
-       <field field_ref="qtr_ice_top"      name="qtr_ice_top"/>
-       <field field_ref="qtr_ice_bot"      name="qtr_ice_bot"/>
-       <field field_ref="qt_ice"           name="qt_ice"     />
-       <field field_ref="qsr_ice"          name="qsr_ice"    />
-       <field field_ref="qns_ice"          name="qns_ice"    />
-       <field field_ref="qemp_ice"         name="qemp_ice"   />
-       <field field_ref="albedo"           name="albedo"     />
-       
-       <field field_ref="hfxcndtop"        name="hfxcndtop"  />
-       <field field_ref="hfxcndbot"        name="hfxcndbot"  />
-       <field field_ref="hfxsensib"        name="hfxsensib"  />
-       
-       <!-- salt fluxes -->
-       <field field_ref="sfxice"           name="sfxice" />
-       
-       <!-- mass fluxes -->
-       <field field_ref="vfxice"           name="vfxice" />
-       <field field_ref="vfxsnw"           name="vfxsnw" />
-       
-       <!-- categories -->
-       <field field_ref="icemask_cat"      name="simskcat"/>
-       <field field_ref="snwthic_cat"      name="snthicat"/>
-       <field field_ref="iceconc_cat"      name="siconcat"/>
-       <field field_ref="icethic_cat"      name="sithicat"/>
-       <field field_ref="icesalt_cat"      name="sisalcat"/>
-       <field field_ref="icetemp_cat"      name="sitemcat"/>
-       <field field_ref="snwtemp_cat"      name="sntemcat"/>
-       <field field_ref="icettop_cat"      name="sitopcat"/>
+           <!-- heat -->
+           <field field_ref="icetemp"          name="sitemp"     long_name="Mean ice temperature"  />
+
+           <!-- categories -->
+           <field field_ref="iceage_cat"       name="siagecat"   long_name="Ice age for categories"             />
+           <field field_ref="iceconc_cat"      name="siconcat"   long_name="Ice concentration for categories"   />
+           <field field_ref="icethic_cat"      name="sithicat"   long_name="Ice thickness for categories"       />
+           <field field_ref="snwthic_cat"      name="snthicat"   long_name="Snow thickness for categories"      />
+
+           <!-- momentum -->
+           <field field_ref="uice"             name="sivelu"     long_name="X-component of sea ice velocity" />
+           <field field_ref="vice"             name="sivelv"     long_name="Y-component of sea ice velocity" />
+           <field field_ref="utau_ai"          name="utau_ai"    long_name="X-component of atmospheric stress on sea ice"  />
+           <field field_ref="vtau_ai"          name="vtau_ai"    long_name="Y-component of atmospheric stress on sea ice"  />
+           <field field_ref="utau_oi"          name="utau_oi"    long_name="X-component of ocean stress on sea ice"  />
+           <field field_ref="vtau_oi"          name="vtau_oi"    long_name="Y-component of ocean stress on sea ice"  />
+           <field field_ref="intstrx"          name="intstrx"    long_name="Internal stress term in force balance (x-component)"   />
+           <field field_ref="intstry"          name="intstry"    long_name="Internal stress term in force balance (y-component)"   />
+
+           <!-- rheology -->
+           <field field_ref="icevel"           name="sivelo"     long_name="ice velocity"   />
+           <field field_ref="icestr"           name="sistre"     long_name="ice strength"   />
+<!--       <field field_ref="isig1"            name="isig1"      long_name="1st principal stress component for EVP rhg"              />
+           <field field_ref="isig2"            name="isig2"      long_name="2nd principal stress component for EVP rhg"              />
+           <field field_ref="isig3"            name="isig3"      long_name="convergence measure for EVP rheology (must be around 1)" />   
+-->
        
        <!-- global attributes -->
        <variable name="start_date"       type="int"><NDATE0>    </variable>
-       <variable name="output_frequency" type="string">5d       </variable>
+       <variable name="output_frequency" type="string">1d       </variable>
        <variable name="CONFIG"           type="string"><CONFIG> </variable>
        <variable name="CASE"             type="string"><CASE>   </variable>
 
      </file>
      
      <file id="file22" name_suffix="_SBC_scalar" description="scalar variables" enabled=".true." >
-       <!-- global contents -->
-       <field field_ref="ibgvol_tot"        name="ibgvol_tot"   />
-       <field field_ref="sbgvol_tot"        name="sbgvol_tot"   />
-       <field field_ref="ibgarea_tot"       name="ibgarea_tot"  />
-       <field field_ref="ibgsalt_tot"       name="ibgsalt_tot"  />
-       <field field_ref="ibgheat_tot"       name="ibgheat_tot"  />
-       <field field_ref="sbgheat_tot"       name="sbgheat_tot"  />
-       
-       <!-- global drifts (conservation checks) -->
-       <field field_ref="ibgvolume"         name="ibgvolume"    />
-       <field field_ref="ibgsaltco"         name="ibgsaltco"    />
-       <field field_ref="ibgheatco"         name="ibgheatco"    />
-       <field field_ref="ibgheatfx"         name="ibgheatfx"    />
-       
-       <!-- global forcings  -->
-       <field field_ref="ibgfrcvoltop"      name="ibgfrcvoltop" />
-       <field field_ref="ibgfrcvolbot"      name="ibgfrcvolbot" />
-       <field field_ref="ibgfrctemtop"      name="ibgfrctemtop" />
-       <field field_ref="ibgfrctembot"      name="ibgfrctembot" />
-       <field field_ref="ibgfrcsal"         name="ibgfrcsal"    />
-       <field field_ref="ibgfrchfxtop"      name="ibgfrchfxtop" />
-       <field field_ref="ibgfrchfxbot"      name="ibgfrchfxbot" />
+           <!-- global contents -->
+           <field id="ibgvol_tot"      name="ibgvol_tot"   long_name="global mean ice volume"           />
+           <field id="sbgvol_tot"      name="sbgvol_tot"   long_name="global mean snow volume"          />
+           <field id="ibgarea_tot"     name="ibgarea_tot"  long_name="global mean ice area"             />
+           <field id="ibgsalt_tot"     name="ibgsalt_tot"  long_name="global mean ice salt content"     />
+           <field id="ibgheat_tot"     name="ibgheat_tot"  long_name="global mean ice heat content"     />
+           <field id="sbgheat_tot"     name="sbgheat_tot"  long_name="global mean snow heat content"    />
+
+           <!-- NH integrals -->
+           <field id="NH_iceextt"      name="NH_iceextt"   long_name="Sea ice extent North"  />
+           <field id="NH_icevolu"      name="NH_icevolu"   long_name="Sea ice volume North"  />
+           <field id="NH_icearea"      name="NH_icearea"   long_name="Sea ice area North"    />
+
+           <!-- SH integrals -->
+           <field id="SH_iceextt"      name="SH_iceextt"   long_name="Sea ice extent South"  />
+           <field id="SH_icevolu"      name="SH_icevolu"   long_name="Sea ice volume South"  />
+           <field id="SH_icearea"      name="SH_icearea"   long_name="Sea ice area South"    />
 
        <!-- global attributes -->
        <variable name="start_date"       type="int"><NDATE0>    </variable>
-       <variable name="output_frequency" type="string">5d       </variable>
+       <variable name="output_frequency" type="string">1d       </variable>
        <variable name="CONFIG"           type="string"><CONFIG> </variable>
        <variable name="CASE"             type="string"><CASE>   </variable>
 

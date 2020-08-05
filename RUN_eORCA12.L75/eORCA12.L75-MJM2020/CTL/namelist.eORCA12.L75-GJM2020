@@ -88,7 +88,7 @@
 !-----------------------------------------------------------------------
    ln_read_cfg = .true.    !  (=T) read the domain configuration file
       !                    !  (=F) user defined configuration           (F => create/check namusr_de
-      cn_domcfg = "domaincfg_eORCA12_v1.0"  ! domain configuration filename
+      cn_domcfg = "domaincfg_eORCA12_v1.1"  ! domain configuration filename
       !
       ln_closea    = .false.    !  T => keep closed seas (defined by closea_mask field) in the  
       !                         !       domain and apply special treatment of freshwater fluxes.
@@ -576,8 +576,8 @@
    !                          ! diagnostics:
    ln_bergdia        = .true.        ! Calculate budgets
    nn_verbose_level  = 0             ! Turn on more verbose output if level > 0
-   nn_verbose_write  = 15            ! Timesteps between verbose messages
-   nn_sample_rate    = 1             ! Timesteps between sampling for trajectory storage
+   nn_verbose_write  = 144           ! Timesteps between verbose messages  WARNING : link with rn_rdt ==> 1day 
+   nn_sample_rate    = 144           ! Timesteps between sampling for trajectory storage
    !
    !                          ! iceberg setting:
    !                                 ! Initial mass required for an iceberg of each class
@@ -1373,8 +1373,8 @@
 !-----------------------------------------------------------------------
 &namnc4        !   netcdf4 chunking and compression settings            ("key_netcdf4")
 !-----------------------------------------------------------------------
-   nn_nchunks_i =   4       !  number of chunks in i-dimension
-   nn_nchunks_j =   4       !  number of chunks in j-dimension
+   nn_nchunks_i =   1       !  number of chunks in i-dimension
+   nn_nchunks_j =   1       !  number of chunks in j-dimension
    nn_nchunks_k =   75      !  number of chunks in k-dimension
    !                       !  setting nn_nchunks_k = jpk will give a chunk size of 1 in the vertical which
    !                       !  is optimal for postprocessing which works exclusively with horizontal slabs

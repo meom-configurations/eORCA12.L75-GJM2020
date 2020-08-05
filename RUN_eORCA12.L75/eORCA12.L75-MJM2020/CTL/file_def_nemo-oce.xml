@@ -26,13 +26,26 @@
           <field field_ref="sst"          name="sosstsst"  />
           <field field_ref="sss"          name="sosaline"  />
           <field field_ref="ssh"          name="sossheig"  />
-          <field field_ref="mldr10_1"     name="somxl010"  />
 
            <variable name="start_date"       type="int"><NDATE0>    </variable>
            <variable name="output_frequency" type="string">1d       </variable>
            <variable name="CONFIG"           type="string"><CONFIG> </variable>
            <variable name="CASE"             type="string"><CASE>   </variable>
         </file>
+
+<!-- ICB FILES -->
+        <file id="file12" name_suffix="_ICBT_" description=" ICB variables" >
+          <field field_ref="berg_melt"          name="berg_melt"  />
+          <field field_ref="berg_buoy_melt"     name="berg_buoy_melt"  />
+          <field field_ref="berg_eros_melt"     name="berg_eros_melt"  />
+          <field field_ref="berg_conv_melt"     name="berg_conv_melt"  />
+
+           <variable name="start_date"       type="int"><NDATE0>    </variable>
+           <variable name="output_frequency" type="string">1d       </variable>
+           <variable name="CONFIG"           type="string"><CONFIG> </variable>
+           <variable name="CASE"             type="string"><CASE>   </variable>
+        </file>
+
 
 <!-- U FILES -->
         <file id="file3" name_suffix="_gridUsurf_" description="ocean U grid variables" >
@@ -62,18 +75,22 @@
 
 <!-- T FILES -->
         <file id="file6" name_suffix="_gridT_" description="ocean T grid variables" >
-            <field field_ref="toce"         name="votemper"   />
-            <field field_ref="soce"         name="vosaline"   />
-            <field field_ref="ssh"          name="sossheig"   />
+            <field field_ref="e3t" long_name="T-cell thickness" />
+            <field field_ref="toce"         name="votemper" >  @toce_e3t / @e3t  </field>
+            <field field_ref="soce"         name="vosaline" >  @soce_e3t / @e3t  </field>
+            <field field_ref="ssh"          name="sossheig"    />
+            <field field_ref="botpres"      name="botpres"     />
 
            <variable name="start_date"       type="int"><NDATE0>    </variable>
            <variable name="output_frequency" type="string">1d       </variable>
            <variable name="CONFIG"           type="string"><CONFIG> </variable>
            <variable name="CASE"             type="string"><CASE>   </variable>
+           <variable name="EOS"              type="string"> TEOS10  </variable>
         </file>
 <!-- U FILES -->
         <file id="file9" name_suffix="_gridU_" description="ocean U grid variables" >
-           <field field_ref="uoce"        name="vozocrtx"  />
+           <field field_ref="e3u" long_name="U-cell thickness"  />
+           <field field_ref="uoce"        name="vozocrtx" >   @uoce_e3u / @e3u  </field>
            <field field_ref="utau"        name="sozotaux"  />
 
            <variable name="start_date"       type="int"><NDATE0>    </variable>
@@ -84,7 +101,8 @@
 
 <!-- V FILES -->
         <file id="file10" name_suffix="_gridV_" description="ocean V grid variables" >
-           <field field_ref="voce"         name="vomecrty" />
+           <field field_ref="e3v" long_name="V-cell thickness"  />
+           <field field_ref="voce"         name="vomecrty" >  @voce / @e3v </field>
            <field field_ref="vtau"         name="sometauy" />
 
            <variable name="start_date"       type="int"><NDATE0>    </variable>
@@ -97,10 +115,9 @@
         <file id="file11" name_suffix="_gridW_" description="ocean W grid variables" >
           <field field_ref="woce"         name="vovecrtz"    />
           <field field_ref="avt"          name="voavt"    />
-          <field field_ref="avmu"         name="voavmu"    />
-          <field field_ref="avmv"         name="voavmv"    />
+          <field field_ref="av_wave"      name="avtiwm"    />
+          <field field_ref="count_evd"    name="count_evd"    />
 
-           <variable name="Comment"          type="string">"avmu avmv are on UW and VW grid point respectively"    </variable>
            <variable name="start_date"       type="int"><NDATE0>    </variable>
            <variable name="output_frequency" type="string">1d       </variable>
            <variable name="CONFIG"           type="string"><CONFIG> </variable>
@@ -124,14 +141,9 @@
            <field field_ref="qair"         name="sohumspe"  />
            <field field_ref="tair"         name="sotemair"  />
            <field field_ref="precip"       name="sowapre"   />
-   <!--
-           <field field_ref="clouds"       name="soccov"    />   -->
+           <field field_ref="wspd"         name="sowinsp"   />
+           <field field_ref="runoffs"      name="sornf"     />
 
-           <field field_ref="wspd"         name="sowinsp"  />
-           <field field_ref="runoffs"      name="sornf"    />
-
-   <!--    <field field_ref="20d"          name="20d"       /> 
-           <field field_ref="hc300"        name="hc300"     />  diahth routine -->
 
            <variable name="start_date"       type="int"><NDATE0>    </variable>
            <variable name="output_frequency" type="string">1d       </variable>

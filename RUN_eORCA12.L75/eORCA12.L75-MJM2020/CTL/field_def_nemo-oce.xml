@@ -527,6 +527,8 @@
         <field id="avt_evd"      long_name="convective enhancement of vertical diffusivity" standard_name="ocean_vertical_tracer_diffusivity_due_to_convection"     unit="m2/s" />
         <field id="avt_evd_e3w"  long_name="convective enhancement to vertical diffusivity * e3w "    unit="m3/s" > avt_evd * e3w </field> 
         <field id="avm_evd"      long_name="convective enhancement of vertical viscosity"   standard_name="ocean_vertical_momentum_diffusivity_due_to_convection"   unit="m2/s" />
+        <!-- DRAKKAR adds -->
+        <field id="count_evd"    long_name="evd_counter"   standard_name="evd_counter"   operation="accumulate" unit="1" />
 
         <!-- avt_tide: available with ln_zdfiwm=T -->
         <field id="av_ratio"     long_name="S over T diffusivity ratio"                     standard_name="salinity_over_temperature_diffusivity_ratio"                     unit="1"    />
