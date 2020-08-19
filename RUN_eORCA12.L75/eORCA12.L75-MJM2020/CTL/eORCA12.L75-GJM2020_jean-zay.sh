@@ -1,15 +1,17 @@
 #!/bin/bash
 #SBATCH --nodes=218
-#SBATCH --ntasks=8080
+#SBATCH --ntasks=8400
 #SBATCH --ntasks-per-node=40
 #SBATCH --hint=nomultithread  
 #SBATCH -J nemo_jean-zay
 #SBATCH -e nemo_jean-zay.e%j
 #SBATCH -o nemo_jean-zay.o%j
 #SBATCH -A cli@cpu
-#SBATCH --time=3:30:00
+#SBATCH --time=18:00:00
+#SBATCH --dependency=singleton
 #SBATCH --exclusive
 
+for month in {1..12} ; do 
 set -x
 ulimit -s 
 ulimit -s unlimited
@@ -44,3 +46,5 @@ echo " Read corresponding include file on the HOMEWORK "
 . $RUNTOOLS/lib/function_4.sh
 #  you can eventually include function redefinitions here (for testing purpose, for instance).
 . $RUNTOOLS/lib/nemo4.sh
+
+done
