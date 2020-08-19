@@ -149,10 +149,114 @@ are too noisy, we might add some extra bi-harmonic viscosity (to be checked).
 ```
 
 
-
 #### 2.2.4 Vertical physics and mixing : TKE + EVD + IWM
-  * Momentum
-  * Tracers
+
+Decision was taken to use TKE closure scheme of the vertical diffusivity. The convection is treated with the EVD algorithm and only applied to tracer (not momentum). Finally, we also decided to use the parametrization (IWM) for internal wave mixing (De Lavergne). The corresponding namelist blocks are :
+
+  * ZDF:
+
+```
+!-----------------------------------------------------------------------
+&namzdf        !   vertical physics manager                             (default: NO selection)
+!-----------------------------------------------------------------------
+   !                       ! adaptive-implicit vertical advection
+   ln_zad_Aimp = .true.      !  Courant number dependent scheme (Shchepetkin 2015)
+   !
+   !                       ! type of vertical closure (required)
+   ln_zdfcst   = .false.      !  constant mixing
+   ln_zdfric   = .false.      !  local Richardson dependent formulation (T =>   fill namzdf_ric)
+   ln_zdftke   = .true.       !  Turbulent Kinetic Energy closure       (T =>   fill namzdf_tke)
+   ln_zdfgls   = .false.      !  Generic Length Scale closure           (T =>   fill namzdf_gls)
+   ln_zdfosm   = .false.      !  OSMOSIS BL closure                     (T =>   fill namzdf_osm)
+   !
+   !                       ! convection
+   ln_zdfevd   = .true.       !  enhanced vertical diffusion
+      nn_evdm     =    0         ! apply on tracer (=0) or on tracer and momentum (=1)
+      rn_evd      =   10.        ! mixing coefficient [m2/s]
+   ln_zdfnpc   = .false.      !  Non-Penetrative Convective algorithm
+      nn_npc      =    1         ! frequency of application of npc
+      nn_npcp     =  365         ! npc control print frequency
+   !
+   ln_zdfddm   = .false.   ! double diffusive mixing
+      rn_avts  =    1.e-4     !  maximum avs (vertical mixing on salinity)
+      rn_hsbfr =    1.6       !  heat/salt buoyancy flux ratio
+   !
+   !                       ! gravity wave-driven vertical mixing
+   ln_zdfiwm   = .true.       ! internal wave-induced mixing            (T =>   fill namzdf_iwm)
+   ln_zdfswm   = .false.      ! surface  wave-induced mixing            (T => ln_wave=ln_sdw=T )
+   !
+   !                       ! coefficients
+   rn_avm0     =   1.4e-6     !  vertical eddy viscosity   [m2/s]       (background Kz if ln_zdfcst=F)
+   rn_avt0     =   1.e-10     !  vertical eddy diffusivity [m2/s]       (background Kz if ln_zdfcst=F)
+   nn_avb      =    0         !  profile for background avt & avm (=1) or not (=0)
+   nn_havtb    =    1         !  horizontal shape for avtb (=1) or not (=0)
+/
+```
+
+  * TKE: Note that the TKE code is the standard code of  NEMO-4.0.2 in which we add the piece of code from UKMO concerning the case `nn_htau=4` (not used) and the piece of code of Claude Talandier (LOPS) for `nn_etau=2` (neither used). Regarding the sea ice dependency we are back to standard NEMO.
+
+```
+!-----------------------------------------------------------------------
+&namzdf_tke    !   turbulent eddy kinetic dependent vertical diffusion  (ln_zdftke =T)
+!-----------------------------------------------------------------------
+   rn_ediff    =   0.1     !  coef. for vertical eddy coef. (avt=rn_ediff*mxl*sqrt(e) )
+   rn_ediss    =   0.7     !  coef. of the Kolmogoroff dissipation
+   rn_ebb      =  67.83    !  coef. of the surface input of tke (=67.83 suggested when ln_mxl0=T)
+   rn_emin     =   1.e-6   !  minimum value of tke [m2/s2]
+   rn_emin0    =   1.e-4   !  surface minimum value of tke [m2/s2]
+   rn_bshear   =   1.e-20  ! background shear (>0) currently a numerical threshold (do not change it)
+   nn_pdl      =   1       !  Prandtl number function of richarson number (=1, avt=pdl(Ri)*avm) or not (=0, avt=avm)
+   nn_mxl      =   3       !  mixing length: = 0 bounded by the distance to surface and bottom
+   !                       !                 = 1 bounded by the local vertical scale factor
+   !                       !                 = 2 first vertical derivative of mixing length bounded by 1
+   !                       !                 = 3 as =2 with distinct dissipative an mixing length scale
+   ln_mxl0     = .true.    !  surface mixing length scale = F(wind stress) (T) or not (F)
+   rn_mxl0     =   0.04    !  surface  buoyancy lenght scale minimum value
+   ln_drg      = .false.   !  top/bottom friction added as boundary condition of TKE
+   ln_lc       = .true.    !  Langmuir cell parameterisation (Axell 2002)
+      rn_lc       =   0.15    !  coef. associated to Langmuir cells
+   nn_etau     =   1       !  penetration of tke below the mixed layer (ML) due to NIWs
+                              !        = 0 none ; = 1 add a tke source below the ML
+                              !        = 2 add a tke source just at the base of the ML
+                              !        = 3 as = 1 applied on HF part of the stress           (ln_cpl=T)
+      rn_efr      =   0.05    !  fraction of surface tke value which penetrates below the ML (nn_etau=1 or 2)
+      nn_htau     =   1       !  type of exponential decrease of tke penetration below the ML
+                              !        = 0  constant 10 m length scale
+                              !        = 1  0.5m at the equator to 30m poleward of 40 degrees
+      rn_eice     =   4       !  below sea ice: =0 ON ; =4 OFF when ice fraction > 1/4
+/
+
+```
+
+  * EVD : see ZDF. Note that the Enhanced Vertical Diffusivity (EVD) only apply on tracers (`nn_evdm=0`) 
+  * IWM :
+
+
+```
+!-----------------------------------------------------------------------
+&namzdf_iwm    !    internal wave-driven mixing parameterization        (ln_zdfiwm =T)
+!-----------------------------------------------------------------------
+   nn_zpyc     = 1         !  pycnocline-intensified dissipation scales as N (=1) or N^2 (=2)
+   ln_mevar    = .true.    !  variable (T) or constant (F) mixing efficiency
+   ln_tsdiff   = .true.    !  account for differential T/S mixing (T) or not (F)
+/
+!-----------------------------------------------------------------------
+&namzdf_iwm_drk  !    internal wave-driven mixing parameterization      (ln_zdfiwm =T)
+!-----------------------------------------------------------------------
+   cn_dir     =  './'
+   !___________!_________________________!___________________!___________!_____________!________!___________!__________________!__________!_______________!
+   !           !  file name              ! frequency (hours) ! variable  ! time interp.!  clim  ! 'yearly'/ ! weights filename ! rotation ! land/sea mask !
+   !           !                         !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' !                  ! pairing  !    filename   !
+   sn_iwmdsc   = 'eORCA12.L75_IWM_fields_CDL' ,  12.         , 'decay_scale_cri' , .false.  , .true. , 'yearly'  , ''               , ''       , ''
+   sn_iwmdsb   = 'eORCA12.L75_IWM_fields_CDL' ,  12.         , 'decay_scale_bot' , .false.  , .true. , 'yearly'  , ''               , ''       , ''
+   sn_iwmmpc   = 'eORCA12.L75_IWM_fields_CDL' ,  12.         , 'mixing_power_cri', .false.  , .true. , 'yearly'  , ''               , ''       , ''
+   sn_iwmmpp   = 'eORCA12.L75_IWM_fields_CDL' ,  12.         , 'mixing_power_pyc', .false.  , .true. , 'yearly'  , ''               , ''       , ''
+   sn_iwmmpb   = 'eORCA12.L75_IWM_fields_CDL' ,  12.         , 'mixing_power_bot', .false.  , .true. , 'yearly'  , ''               , ''       , ''
+
+/
+
+```
+
 
 #### 2.2.5 no Fox-Kemper parameterization.
   * Choice is made not to use this parameterization and let the opportunity for sensitivity experiment.
@@ -172,6 +276,8 @@ are too noisy, we might add some extra bi-harmonic viscosity (to be checked).
    rn_rho_c_mle = 0.01      ! delta rho criterion used to calculate MLD for FK
 /
 ```
+
+
 
 #### 2.2.6 Bottom friction
   * Use quadratic bottom friction with a drag coefficient of 10.<sup>-3</sup>.
@@ -264,6 +370,10 @@ almost useless.
 The code was modified in order to be able to read the file names and variables name in the namelist, through a `sn` structure, even though the full
 implementation with `fldread` is not yet done. In the RUNTOOLS, function `getzdfiwm` have been updated in order to be consistent with the new
 coding.
+
+#### 2.3.7 zdfevd.F90
+This piece of code was modified in order to save the number of time EVD is applied during a segment of the job. We implement a new variable which is normally worked out by XIOS (`cound_evd`) with the accumulate function. This is implemented but actually not working (**to be fixed**) 
+
    
 ## 3. Input data files
 ### 3.1 Configuration files
@@ -335,7 +445,13 @@ For SSS restoring we extract the surface layer for salinity.
 /
 
 ```
-#### 3.3.3 Convertion for use with TEOS10 eq. of state: (GSW package with some tricks for ifort compilation)
+
+#### 3.2.2 Convertion for use with TEOS10 eq. of state: (GSW package with some tricks for ifort compilation)
+The idea is to use the GSW package from T. Mc Dougall et al. (We get the package through UKMO by C. Guivar'ch). The initial GSW package
+is known to have problems with intel fortran compiler, because of too long DATA lines. This problem has been fixed by J. Orr (found on GitHub). I
+implemented James modification into UKMO code and it was fine. (Modified code is in available in [this local directory](../../TOOLS/GSW-Fortran-3.05-6/).
+After performing the translation from  potential temperature to CT (conservative temperature) and from practical salinity to absolute salinity (SA), we had trouble starting the code with the new variables (probably for a mask problem). Performing a comparison between the 2 data set (EOS80 and TEOS10), we found a very small difference, far below the uncertainties of the used climatology. As we lack of time for debugging the problem, we decided to use initial condition with the EOS80 fields (as it was already done for the eNATL60 runs). 
+
 
 
 <!---
@@ -379,6 +495,7 @@ For SSS restoring we extract the surface layer for salinity.
 
 ###
 -->
+
 ### 3.3 Distance to the coast file for SSS restoring.
 #### 3.3.1 Rationale
 We decided to use SSS restoring using the DRAKKAR enhancement, in which we switch off the restoring near the coastal boundaries, in order to
@@ -661,20 +778,51 @@ Note that the flag ln_isfcav is no more in the namelist but read from the domain
 ```
 ### 3.7 Internal Wave Mixing (Casimir de Lavergne parameterization).
 #### 3.7.1 Making of IWM files
-  * This parameterization requires a set of file providing information about the available energy and the length scale. Casimir
+  * This parameterization requires a set of file providing information about the mixing power and the decay  scales. Casimir
 provided a set of files for different model resolution and the original one on a regular 1/4 degree grid.  
 Romain Bourdallé Badie from MOI, used interpolation on the fly for those fields, without problems. I would have followed this advice, but the actual
 code in NEMO needs modification for the use of `fldread` procedure. For the sake of simplicity (due to the lack of time), I will use SOSIE
-and produce the files on the `eORCA12.L75` grid. 
+and produce the files on the `eORCA12.L75` grid from the MOI already drowned files.
   * module zdfiwm was modified in order to specify the names of files and variables in the namelist instead of having them hard coded (see 2.3.6)
 
 #### 3.7.2 Related namelist block
+
+``̀
+!-----------------------------------------------------------------------
+&namzdf_iwm_drk  !    internal wave-driven mixing parameterization      (ln_zdfiwm =T)
+!-----------------------------------------------------------------------
+   cn_dir     =  './'
+   !___________!_________________________!___________________!___________!_____________!________!___________!__________________!__________!_______________!
+   !           !  file name              ! frequency (hours) ! variable  ! time interp.!  clim  ! 'yearly'/ ! weights filename ! rotation ! land/sea mask !
+   !           !                         !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' !                  ! pairing  !    filename   !
+   sn_iwmdsc   = 'eORCA12.L75_IWM_fields_CDL' ,  12.         , 'decay_scale_cri' , .false.  , .true. , 'yearly'  , ''               , ''       , ''
+   sn_iwmdsb   = 'eORCA12.L75_IWM_fields_CDL' ,  12.         , 'decay_scale_bot' , .false.  , .true. , 'yearly'  , ''               , ''       , ''
+   sn_iwmmpc   = 'eORCA12.L75_IWM_fields_CDL' ,  12.         , 'mixing_power_cri', .false.  , .true. , 'yearly'  , ''               , ''       , ''
+   sn_iwmmpp   = 'eORCA12.L75_IWM_fields_CDL' ,  12.         , 'mixing_power_pyc', .false.  , .true. , 'yearly'  , ''               , ''       , ''
+   sn_iwmmpb   = 'eORCA12.L75_IWM_fields_CDL' ,  12.         , 'mixing_power_bot', .false.  , .true. , 'yearly'  , ''               , ''       , ''
+/
+`̀̀
 
 ## 4. Setting up the SI3 model (ICE)
 ### 4.1 Rationale
 In order to set up the ice model configuration we will follow the advices of Camille Lique and Claude Talandier, having a strong expertise 
 of the arctic.  Many of their advices were also taken with regard to the choice of parameterization for the ocean (see above). In this chapter
 we only discuss choices related to the ice model.
+
+## 5. Setting up XIOS output 
+### 5.1 Hourly output
+### 5.2 Daily output
+### 5.3 Issues :
+  * issues with count_evd
+
+
+## 6. Production of the simulation
+
+### 6.1 Starting procedure
+
+### 6.2 Journal of the run.
+
+
 
 
 
