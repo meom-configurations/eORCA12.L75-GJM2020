@@ -1,6 +1,7 @@
 
 # eORCA12.L75-GJM2020 simulation
 
+
 ## 1. Overview
 This simulation aims at producing a new reference for eORCA12.L75 configuration, using the state of the art as of NEMO_4.0.2, previous
 improvements foreseen as the results of the IMMERSE project. The configuration setting has been discussed among the groups using eORCA12 
@@ -782,12 +783,14 @@ Note that the flag ln_isfcav is no more in the namelist but read from the domain
 provided a set of files for different model resolution and the original one on a regular 1/4 degree grid.  
 Romain Bourdallé Badie from MOI, used interpolation on the fly for those fields, without problems. I would have followed this advice, but the actual
 code in NEMO needs modification for the use of `fldread` procedure. For the sake of simplicity (due to the lack of time), I will use SOSIE
-and produce the files on the `eORCA12.L75` grid from the MOI already drowned files.
-  * module zdfiwm was modified in order to specify the names of files and variables in the namelist instead of having them hard coded (see 2.3.6)
+and produce the files on the `eORCA12.L75` grid from the MOI already drowned files. This was done in the `build_IWM` directory. Each variable was interpolated separatly, then were concatenated in a single file `eORCA12.L75_IWM_fields_CDL.nc` as seen in the corresponding namelist block. SOSIE namelist for interpolation
+can be bound in the `build_IWM` directory. 
+
+  * Module zdfiwm was modified in order to specify the names of files and variables in the namelist instead of having them hard coded (see 2.3.6)
 
 #### 3.7.2 Related namelist block
 
-``̀
+```
 !-----------------------------------------------------------------------
 &namzdf_iwm_drk  !    internal wave-driven mixing parameterization      (ln_zdfiwm =T)
 !-----------------------------------------------------------------------
@@ -801,7 +804,7 @@ and produce the files on the `eORCA12.L75` grid from the MOI already drowned fil
    sn_iwmmpp   = 'eORCA12.L75_IWM_fields_CDL' ,  12.         , 'mixing_power_pyc', .false.  , .true. , 'yearly'  , ''               , ''       , ''
    sn_iwmmpb   = 'eORCA12.L75_IWM_fields_CDL' ,  12.         , 'mixing_power_bot', .false.  , .true. , 'yearly'  , ''               , ''       , ''
 /
-`̀̀
+```
 
 ## 4. Setting up the SI3 model (ICE)
 ### 4.1 Rationale
