@@ -42,9 +42,20 @@ export I_MPI_ADJUST_ALLREDUCE=3
 echo " Read corresponding include file on the HOMEWORK "
 .  ${CTL_DIR}/includefile.sh
 
+if [ -f $TMPDIR/STOP_ABORT  ] ; then
+   echo "EMERGENCY STOP : STOP_ABORT file found in $TMPDIR"
+   break
+else
+
 . $RUNTOOLS/lib/function_4_all.sh
 . $RUNTOOLS/lib/function_4.sh
 #  you can eventually include function redefinitions here (for testing purpose, for instance).
 . $RUNTOOLS/lib/nemo4.sh
+fi
+ 
+if [ ! -f OK ] ; then
+ touch STOP_ABORT
+ break
+fi
 
 done

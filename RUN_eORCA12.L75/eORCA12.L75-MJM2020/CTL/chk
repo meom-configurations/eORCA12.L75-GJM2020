@@ -1,0 +1,13 @@
+#!/bin/bash
+
+job=$( ls -1tr nemo_jean-zay.o* | tail -1 )
+
+echo $job
+
+ grep unlimited $job
+tail -1 *db
+last=$( tail -1 *db | awk '{print $3}' )
+current=$( tail -1 $job | awk '{print $1}' )
+tail $job
+
+echo missing : $(( last - current ))
