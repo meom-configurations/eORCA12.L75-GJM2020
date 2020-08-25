@@ -151,8 +151,8 @@ echo $name
 
 echo "# Journal of $CONFCASE run" 
 
-line    Date Seg jobid cores_N/X start  end nit000 nitend  rn_rdt comment
-header   c    r    r     c      c    r      r       r      n  
+line    Date Seg jobid Nem/Xio start  end nit000 nitend  rdt comment
+header   c    r    r     c      c      c    r      r       r      n  
 
 for f in $( ls -t $name.e* )  ; do
   ofile=$(echo $f | sed -e 's/\.e/.o/' )
