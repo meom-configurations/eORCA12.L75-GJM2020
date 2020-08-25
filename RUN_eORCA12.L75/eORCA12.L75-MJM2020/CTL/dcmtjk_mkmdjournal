@@ -1,0 +1,194 @@
+#!/bin/bash
+
+# This script is used to produce a template for the Journal of a run, written
+# in markdown language, that fits with github repositories.
+# It must be run where the nemoxx.oxxx files ares saved. 
+# class =  @Run management tools@
+
+usage() {
+     echo
+     echo "USAGE: $(basename $0 ) [-h ] [-f ] [-c confcase ] [-n name ] [-u user] [-o fileout]"
+     echo
+     echo "  PURPOSE:"
+     echo "     This script create a markdown  with the segments of run present in the local "
+     echo "     directory (job output). It uses the namelist in  order to retrieve important "
+     echo "     parameters of the run, to put in the table. "
+     echo "     It prepares the column for the CPU usage. This column can be completed "
+     echo "     afterward with accounting information"
+     echo "     (see dcmtk_mdjournal_cpu) "
+     echo
+     echo "  OPTIONS:"
+     echo "     -h : help "
+     echo "     -f : force : do not check that you are in a CTL dir "
+     echo "     -n name : use name instead of nemo_<MACHINE>. <MACHINE> is inferred from hostname"
+     echo "            for irene, ada, occigen, jean-zay "
+     echo "     -c confcase : use confcase instead of CONFCASE deduced from CTL"
+     echo "                 : this is usefull with option -f "
+     echo "     -u user [default is $USER ]"
+     echo "     -o output file [ default is journal.wiki "
+     echo
+     exit 0
+        }
+
+getjobid () {
+    # get job id from nemoxxx.e*** file
+    echo ${1#*.e}
+            }
+
+line() { 
+   echo -n "|"
+   narg=$#
+   for n in $(seq 1 $narg) ; do
+     echo -n $1 "| "
+     shift
+   done
+    echo
+         }
+
+linedat() {
+     dat=($*)
+     echo -n "|" ${dat[@]}
+         }
+
+
+header () {
+   narg=$#
+   echo -n "|"
+   for n in $(seq 1 $narg) ; do
+     case $1 in
+     ( 'c' )
+        echo -n :---: "| " ;;
+     ( 'r' )
+        echo -n ---: "| " ;;
+     ( 'l' )
+        echo -n :--- "| " ;;
+     (  * ) 
+        echo -n --- "| " ;;
+     esac
+     shift
+   done
+    echo
+          }
+
+reformdat()  {
+    tag=$1
+    echo y${tag:0:4}m${tag:4:2}d${tag:6:2}
+             }
+
+# LookInNamelist returns the value of a variable in the namelist
+#        examples: aht0=$(LookInNamelist aht0 )  <=> aht0=$(LookInNamelist aht0 namelist )
+#                  ln_limdmp=$(LookInNamelist ln_limdmp namelist_ice )
+#                  nit000=$(LookInNamelist nn_it000 namelist_oce.10 ) 
+#        If there is a third argument it is used as a namelist block and the search is
+#        limited to this block :
+#                  ln_tsd_init=$(LookInNamelist ln_tsd_init namelist_cfg namtsd_drk )
+LookInNamelist()    {
+         if [ $# -ge 2 ] ; then znamelist=$2 ; else znamelist=namelist ; fi
+         if [ $# = 3   ] ; then zblk=$3      ; else zblk=''            ; fi
+         if [ ! $zblk ] ; then
+           eval grep -e $1 $znamelist      | tr -d \' | tr -d \"  | sed -e 's/=/  = /' | awk ' {if ( $1 == str ) print $3 }' str=$1
+         else
+          getblock $zblk $znamelist | eval grep -e $1  | tr -d \' | tr -d \"  | sed -e 's/=/  = /' | awk ' {if ( $1 == str ) print $3 }' str=$1
+         fi
+                    }
+
+# Get a namelist block from its name in namelist
+getblock()          {
+            # if a 2nd argument is passed, it is a namelist name. Default to 'namelist'
+            if [ $2 ] ; then namelist=$2 ; else namelist=namelist ; fi
+            cat $namelist | awk 'BEGIN {flip=0} { \
+            if ( $1 == "&"blk && flip == 0 ) { flip=1   }  \
+            if ( $1 != "/"  && flip == 1   ) { print $0 }  \
+            if ( $1 == "/"  && flip == 1   ) { print $0 ; flip=0 }    \
+                                    }' blk=$1
+                    }
+
+# For logical value in namelist always return T or F despite the namelist format ( TRUE,true, true etc ...)
+normalize()         {
+               tmp=$(echo $1 | tr 'a-z' 'A-Z' )
+               echo $tmp  | grep -q 'T'
+               if [ $? = 0 ] ; then echo T ; else echo F ; fi
+                    }
+# ---
+
+
+
+name=nemo_occigen
+force=''
+CONFCASE='eORCA12.L75-GJM2020'
+user=$USER
+filout=journal.md
+MACHINE=$(hostname)
+
+case $MACHINE in
+( irene*   )  MACHINE=irene ;;
+( occigen* )  MACHINE=occigen ;;
+( ada*     )  MACHINE=ada  ;;
+( login*occigen)  MACHINE=occigen2 ;;
+( jean-zay*)  MACHINE=jean-zay ;;
+esac
+name=nemo_$MACHINE
+
+while getopts :hfn:c:o: opt ; do
+   case $opt in
+     (h) usage ;;
+     (n) name=${OPTARG} ;;
+     (c) CONFCASE=${OPTARG} ;;
+     (o) filout=${OPTARG} ;;
+     (*) usage ;;
+   esac
+done
+
+tmp=$(pwd)
+
+CONFIG=${CONFCASE%-*}
+CASE=${CONFCASE#*-}
+
+echo $CONFCASE
+echo $user
+echo $filout
+echo $name
+
+echo "# Journal of $CONFCASE run" 
+
+line    Date Seg jobid cores_N/X start  end nit000 nitend  rn_rdt comment
+header   c    r    r     c      c    r      r       r      n  
+
+for f in $( ls -t $name.e* )  ; do
+  ofile=$(echo $f | sed -e 's/\.e/.o/' )
+  jobid=$(getjobid $f) 
+  seg=$( grep 'no=' $f | awk -F= '{print $2}' )
+  # corresponding namelist_oce
+  namelist=$WORK/${CONFIG}/${CONFCASE}-S/ANNEX/namelist_oce.$seg
+#  namelist=../namelist.$CONFCASE
+  # corresponding ocean.output file
+  oceanout=$WORK/${CONFIG}/${CONFCASE}-S/ANNEX/ocean.output.$seg
+  
+  # date of segment
+  nday=$(cat $ofile | grep starting | awk '{print $2}' )
+  t1=$(cat $ofile | grep starting | awk '{print $7}' )
+  t2=$( datfinyyyy $t1 $nday )
+  t1=$(reformdat $t1)
+  t2=$(reformdat $t2)
+  nit000=$( cat $f | grep 'nit000=' | tail -1 | awk -F= '{print $2}')
+  nitend=$( cat $f | grep 'nitend=' | tail -1 | awk -F= '{print $2}')
+  # time step as read from ofile
+  rn_rdt=$( cat $ofile | grep 'Time step is' | awk -F: '{print $2}')
+  # flag linssh
+  tmp=$( LookInNamelist ln_linssh $namelist  ) ; tmp=$(normalize $tmp) 
+  if [ $tmp = T ] ; then
+    comment='linssh'
+  else
+    comment='.'
+  fi 
+  # nproc NEMO/XIOS
+ nb_proc_nemo=$(grep -w NB_NPROC $f | tail -1 | awk -F= '{print $2}' )
+ nb_proc_xios=$(grep -w NB_NPROC_IOS $f | tail -1 | awk -F= '{print $2}' )
+  
+  # Execution date
+  fecha=$(head -2 $ofile | tail -1 | sed -e 's/CEST//')
+  linedat ${fecha[@]}
+
+  line $seg $jobid  $nb_proc_nemo'/'$nb_proc_xios  $t1 $t2  $nit000 $nitend  $rn_rdt  $comment
+  
+done

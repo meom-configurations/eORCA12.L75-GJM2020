@@ -1,0 +1,62 @@
+#!/bin/bash
+
+
+usage() {
+   exit
+        }
+
+
+for cfo in nemo_jean-zay.o* ; do
+cfe=$( echo $cfo | sed -e 's/\.o/.e/' )
+
+jobid=${cfo##*.o}
+
+echo $jobid | grep -q '-'
+if [ $? = 1 ] ; then  # no - in jobid, meaning split not done already
+
+ st=$( squeue -j $jobid  2> /dev/null |tail -1 |  awk '{print $5}' ) ; st=${st:=none}
+ if [ $st = R ] ; then
+   echo skip $cfo, job running 
+   break
+ fi
+
+nseg=$( grep 'ulimit -s unlimited' $cfe | wc -l )
+# segment start with 'unlimited'
+linulo=($( grep -n unlimited $cfo | awk -F: '{print $1}' ) )
+linule=($( grep -n 'ulimit -s unlimited' $cfe | awk -F: '{print $1}' ) )
+
+echo ${linulo[@]}
+echo ${linule[@]}
+
+for n in $( seq 1 $nseg ) ; do
+   nn=$(printf "%02d" $n )
+# work on cfo
+   no=$(( n - 1 ))
+   n1=${linulo[$no]}
+   if [ $n != $nseg ] ; then
+     n2=$(( ${linulo[$n]} - 1 ))
+   else 
+     n2=$( wc -l $cfo | awk '{print $1}' )
+   fi
+  sed -n -e "$n1,$n2 w ${cfo}-$nn" $cfo
+  tag=($( tail -3 ${cfo}-$nn | head -1 ) )
+
+  eval touch -d \'"${tag[@]}"\' ${cfo}-$nn
+
+# work on cfe
+  no=$(( n - 1 ))
+  n1=$(( ${linule[$no]} -1 ))
+  if [ $n != $nseg ] ; then
+    n2=$(( ${linule[$n]} - 2 ))
+  else
+    n2=$( wc -l $cfe | awk '{print $1}' )
+  fi
+
+  sed -n -e "$n1,$n2 w ${cfe}-$nn" $cfe
+  eval touch -d \'"${tag[@]}"\' ${cfe}-$nn
+
+done
+  mv $cfo o-$cfo
+  mv $cfe e-$cfe
+  fi
+done
