@@ -151,8 +151,8 @@ echo $name
 
 echo "# Journal of $CONFCASE run" 
 
-line    Date Seg jobid Nem/Xio start  end nit000 nitend  rdt comment
-header   c    r    r     c      c      c    r      r       r      n  
+line    Date Seg jobid Nem/Xio start/end nit000/nitend  rdt comment
+header   c    r    r     c      c          r            r      n  
 
 for f in $( ls -t $name.e* )  ; do
   ofile=$(echo $f | sed -e 's/\.e/.o/' )
@@ -187,8 +187,8 @@ for f in $( ls -t $name.e* )  ; do
   
   # Execution date
   fecha=$(head -2 $ofile | tail -1 | sed -e 's/CEST//')
-  linedat ${fecha[@]}
+  linedat ${fecha[@]:4}
 
-  line $seg $jobid  $nb_proc_nemo'/'$nb_proc_xios  $t1 $t2  $nit000 $nitend  $rn_rdt  $comment
+  line $seg $jobid  $nb_proc_nemo'/'$nb_proc_xios  $t1'/'$t2  $nit000'/'$nitend  $rn_rdt  $comment
   
 done
