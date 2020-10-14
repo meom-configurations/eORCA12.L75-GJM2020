@@ -170,8 +170,8 @@ for f in $( ls -t $name.e* )  ; do
   t2=$( datfinyyyy $t1 $nday )
   t1=$(reformdat $t1)
   t2=$(reformdat $t2)
-  nit000=$( cat $f | grep 'nit000=' | tail -1 | awk -F= '{print $2}')
-  nitend=$( cat $f | grep 'nitend=' | tail -1 | awk -F= '{print $2}')
+  nit000=$( cat $f | grep 'nit000=' | head -1 | awk -F= '{print $2}')
+  nitend=$( cat $f | grep 'nitend=' | head -1 | awk -F= '{print $2}')
   # time step as read from ofile
   rn_rdt=$( cat $ofile | grep 'Time step is' | awk -F: '{print $2}')
   # flag linssh
