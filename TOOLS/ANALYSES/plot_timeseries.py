@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 
 import os,sys
@@ -8,7 +8,28 @@ import matplotlib.pyplot as plt
 import xarray as xr
 
 def usage():
-   print " USAGE: ",sys.argv[0]," -p POINT-file -f DATA-file -v VARIABLE-name"
+   print " USAGE: "
+   print "     ",os.path.basename(sys.argv[0])," -p POINT-file -f DATA-file -v VARIABLE-name"
+   print " "
+   print " PURPOSE: "
+   print "     Draw a timeserie plot for the given VARIABLE-name in DATA-file as various locations"
+   print "     indicated in the POINT-file. "
+   print " "
+   print " ARGUMENTS:"
+   print "    -p POINT-file : give the name of a POINT-file, decribing the points to sample in DATA-file"
+   print "                    for the timeseries plot. POINT-file is a text file (ASCII) with the first line"
+   print "                    giving the name of the region, used in the title of the plot. Other lines, "
+   print "                    (as many as needed) hold 3 fields : Label  I   J "
+   print "                      * I and J are index of the points to plot in the DATA-file."
+   print "                      * Label will be used in the legend of the plot."
+   print "    -f DATA-file : give the name of the netcdf data file used for plotting. At present, it assumes some"
+   print "                   NEMO like characteristics (ie, dimensions x,y, variable nav_lon,nav_lat ... )"
+   print "    -v VARIABLE-name : give the name of the netcdf variable to plot. We assume that there is a long_name"
+   print "                   attribute, that will be used in the title of the plot."
+   print "   "
+   print " OPTIONS:"
+   print "    None so far ..."
+   print "   "
    quit()
 #------------------------
 
@@ -23,6 +44,7 @@ def timeplot(pds,cd_var, px, py, param_dict):
    zdsloc=pds.isel(x=px,y=py)
    zout=zdsloc[cd_var].plot(**param_dict)
 #------------------------
+
 def zparse():
    global cf_points, cf_name, cv_name
    cf_points="none"
@@ -42,6 +64,9 @@ def zparse():
          print " +++ ERROR : unknown option ", cldum
          usage()
 #----------------
+# main program starts here 
+cv_lon='nav_lon'
+cv_lat='nav_lat'
 
 n=len(sys.argv)
 if n == 1:
@@ -73,8 +98,8 @@ point=open(cf_points,"r")
 
 # open data file
 ds=xr.open_dataset(cf_name)
-rlon=ds.data_vars['nav_lon']
-rlat=ds.data_vars['nav_lat']
+rlon=ds.data_vars[cv_lon]
+rlat=ds.data_vars[cv_lat]
 
 # prepare graph
 fig = plt.figure(num = 1, figsize=(12,4), facecolor='w', edgecolor='k')   ; #LB: j'ouvre la figure #1 
@@ -94,9 +119,7 @@ for line  in point:
    x=int(lst[1])
    y=int(lst[2])
 
-
 #
-   print x, y
    lon=rlon.values[y,x]
    lat=rlat.values[y,x]
    clon="{:5.1f}".format(lon)
