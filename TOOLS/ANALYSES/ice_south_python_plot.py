@@ -130,7 +130,8 @@ elif cv_in == 'sos':
 elif cv_in == 'sovitmod':
     cname='Sea Surface Velocity '
     vmin=0.
-    vmax=1.
+#    vmax=1.
+    vmax=0.5
     offset=0
     scalef=1
     unit='m/s'
@@ -191,8 +192,10 @@ for tim in range(frd,fre):
 #    V2d=nmp.where(V2d == 0, Vmsk, V2d )
     dat=cdftime.num2date(Xtim[tim])
     datstr = dat.strftime("%b-%d-%Y %H:%M")
+#    V2d=nmp.where ( V2d is nmp.ma.masked, 5, V2d)
     if lmsk:
        V2d=nmp.ma.masked_where(V2d == 0 , V2d) 
+
     if tim < 10:
        cnum='00'+str(tim)
     elif tim < 100:   
@@ -204,14 +207,15 @@ for tim in range(frd,fre):
 
     vfig_size = [ 4, 4.5 ] 
     vsporg = [0.1, 0.12, 0.80, 0.75]
-    eps=0.10  # 0.1
+    eps=0.00  # 0.1
     ni=zoom[2]-zoom[0]+1
     nj=zoom[3]-zoom[1]+1
     print ni, nj
 
     lon_0= (vp[0]+vp[2])/2.
     lat_0= (vp[1]+vp[3])/2.
-    lat_0=0
+    lat_0=-90
+    lon_0=150
     print "lon_0=", lon_0
     print "lat_0=", lat_0
 #    vp   = [ -200, -89, 60, 89 ]
@@ -224,7 +228,7 @@ for tim in range(frd,fre):
     ax  = plt.axes(vsporg, facecolor = 'w')
     
     carte = Basemap(llcrnrlon=vp[0]-eps, llcrnrlat=vp[1]-eps, urcrnrlon=vp[2]+eps, urcrnrlat=vp[3]+eps, \
-                    resolution='c', area_thresh=10., projection=proj,lon_0=lon_0,lat_0=lat_0,\
+                    resolution='c', area_thresh=10., projection=proj,boundinglat=-45, lon_0=lon_0,lat_0=lat_0,\
                     epsg=None)
     
     x0,y0 = carte(Xlon,Xlat)
@@ -249,8 +253,9 @@ for tim in range(frd,fre):
 
 #   xstep=45
 #   ystep=20
-    carte.drawmeridians(nmp.arange(vp[0],vp[2]+xstep,xstep), labels=[1,0,0,1], linewidth=0.3)
-    carte.drawparallels(nmp.arange(vp[1],vp[3]+ystep,ystep), labels=[1,0,0,1], linewidth=0.3)
+    carte.drawmeridians(nmp.arange(vp[0],vp[2]+xstep,xstep), labels=[1,1,1,1], linewidth=0.3)
+#    carte.drawparallels(nmp.arange(vp[1],vp[3]+ystep,ystep), labels=[1,1,1,1], linewidth=0.3)
+    carte.drawparallels(nmp.arange(vp[1],vp[3]+ystep,ystep), linewidth=0.3)
 
     # add color bar  : 
     ax3 = plt.axes( [0.1,0.05,0.80,0.015])
