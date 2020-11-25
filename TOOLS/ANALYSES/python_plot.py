@@ -63,6 +63,8 @@ parser.add_argument('-vmax','--varmax',type=float, default=misval,  required=Fal
 parser.add_argument('-offset','--voff',type=float, default=misval,  required=False, help='specify offset valuoffset value ')
 parser.add_argument('-scale','--vsca' ,type=float, default=misval,  required=False, help='specify scaling factor ')
 parser.add_argument('-bckgrd','--bkgrd',           default=mischr,  required=False, help='specify a background map : [none], etopo, shadedrelief, bluemarble')
+parser.add_argument('-figsz','--figsz', nargs=2,   default=[6.4,4.8],  required=False, help='specify figsize in inches ( width, height) ')
+parser.add_argument('-res','--res',                default='c'   ,  required=False, help='specify the resolution of the coastline: one of c, l, i, h, f [c]' )
 
 args = parser.parse_args()
 ####
@@ -86,6 +88,9 @@ varmax = args.varmax
 voff   = args.voff
 vsca   = args.vsca
 bkgrd  = args.bkgrd
+zfigsz = args.figsz
+res    = args.res
+
 # 
 # transform strings in integer and float
 #  zoom defines in model (i,j) the south-west  and north-east corners for the data 
@@ -271,7 +276,8 @@ for tim in range(frd,fre):
     print cnum, ' ', datstr
 
 # Not clear : crappy hard coded  stuff
-    vfig_size = [ 4, 4.5 ] 
+    #vfig_size = [ 4, 4.5 ] 
+    vfig_size = [ float(zfigsz[0]), float(zfigsz[1]) ]
     vsporg = [0.1, 0.12, 0.80, 0.75]
     eps=0.10  # 0.1
 
@@ -297,12 +303,11 @@ for tim in range(frd,fre):
     cfig = cdir_figs+'/'+cf_plt+'.png'
     
 # Defining the map with matplotlib/basemap : Inspired from Laurent's code (kind of black box for JM)
-#    fig = plt.figure(num = 1, figsize=(vfig_size), dpi=None, facecolor='k', edgecolor='k')
-    fig = plt.figure(num = 1,  dpi=None, facecolor='k', edgecolor='k')
+    fig = plt.figure(num = 1,  figsize=(vfig_size), dpi=None, facecolor='k', edgecolor='k')
     ax  = plt.axes(vsporg, facecolor = 'w')
     
     carte = Basemap(llcrnrlon=lonmin-eps, llcrnrlat=max(latmin-eps,-90), urcrnrlon=lonmax+eps, urcrnrlat=min(latmax+eps,360), \
-                    resolution='c', area_thresh=10., projection=proj, lon_0=lon_0, lat_0=lat_0,\
+                    resolution=res, area_thresh=10., projection=proj, lon_0=lon_0, lat_0=lat_0,\
                     epsg=None)
     
     x0,y0 = carte(Xlon,Xlat)
