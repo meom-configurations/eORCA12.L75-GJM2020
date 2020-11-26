@@ -55,6 +55,7 @@ parser.add_argument('-d', '--figures',             default='./figs',required=Fal
 parser.add_argument('-t', '--frame',  type=int,    default=-1,      required=False, help='specify the beg frame  number, [all]')
 parser.add_argument('-nt', '--number',type=int,    default=-1,      required=False, help='specify the number of frame, [all]')
 parser.add_argument('-dpi','--dpi',type=int,       default=150,     required=False, help='specify dpi resolution [150] ')
+parser.add_argument('-klev','--klev',type=int,     default=-1,      required=False, help='specify vertical level to plot in 3D file ')
 parser.add_argument('-proj','--projection',        default='cyl',   required=False, help='specify projection [cyl] ')
 parser.add_argument('-xstep','--xstep',type=float, default=45.0,    required=False, help='specify longitude graduation [45] ')
 parser.add_argument('-ystep','--ystep',type=float, default=45.0,    required=False, help='specify latitude graduation [45] ')
@@ -65,6 +66,7 @@ parser.add_argument('-scale','--vsca' ,type=float, default=misval,  required=Fal
 parser.add_argument('-bckgrd','--bkgrd',           default=mischr,  required=False, help='specify a background map : [none], etopo, shadedrelief, bluemarble')
 parser.add_argument('-figsz','--figsz', nargs=2,   default=[6.4,4.8],  required=False, help='specify figsize in inches ( width, height) ')
 parser.add_argument('-res','--res',                default='c'   ,  required=False, help='specify the resolution of the coastline: one of c, l, i, h, f [c]' )
+parser.add_argument('-depv','--depth_var',         default='deptht' , required=False, help='specify the name of the depth variable in 3D file [deptht]' )
 
 args = parser.parse_args()
 ####
@@ -90,6 +92,13 @@ vsca   = args.vsca
 bkgrd  = args.bkgrd
 zfigsz = args.figsz
 res    = args.res
+klev   = args.klev
+vdep   = args.depth_var
+
+if klev == -1 :
+   l3d = False
+else:
+   l3d = True
 
 # 
 # transform strings in integer and float
@@ -187,6 +196,46 @@ elif cv_in == 'sosaline':
     tick   = 0.5
     lmsk   = True
 
+elif cv_in == 'votemper':
+    cname  = 'Conservative Temperature'
+    vmin   = 0
+    vmax   = 30
+    offset = 0
+    scalef = 1
+    unit   = 'DegC'
+    tick   = 1
+    lmsk   = True
+
+elif cv_in == 'vosaline':
+    cname  = 'Absolute Salinity'
+    vmin   = 32
+    vmax   = 35
+    offset = 0
+    scalef = 1
+    unit   = 'g/kg'
+    tick   = 0.2
+    lmsk   = True
+
+elif cv_in == 'sossheig':
+    cname  = 'Sea Surface Height'
+    vmin   = -2
+    vmax   = 2
+    offset = 0
+    scalef = 1
+    unit   = 'm'
+    tick   = 0.2
+    lmsk   = True
+
+elif cv_in == 'somxl010':
+    cname  = 'Mixed Layer Depth '
+    vmin   = 0
+    vmax   = 1800
+    offset = 0
+    scalef = 1
+    unit   = 'm'
+    tick   = 150
+    lmsk   = True
+
 elif cv_in == 'siconc':
     cname  = 'Sea ice concentration'
     vmin   = 0.
@@ -221,6 +270,7 @@ vc_value = nmp.arange(vmin, vmax+0.1, tick)
 
 # Open the input file
 id_in = Dataset(cf_in)
+id_in.set_auto_mask(False)
 list_var = id_in.variables.keys()
 
 Xlon = id_in.variables['nav_lon'][:,:]
@@ -228,6 +278,10 @@ Xlon = id_in.variables['nav_lon'][:,:]
 #Xlon =nmp.where(Xlon > 73, Xlon-360,Xlon )
 
 Xlat = id_in.variables['nav_lat'][:,:]
+
+# read depth in case of 3D file and 3D var to plot
+if l3d:
+   gdep = id_in.variables[vdep][:]
 
 # get the size of the data set from the nav_lon variable (why not ? ) 
 (npjglo,npiglo) = nmp.shape(Xlon) ; print('Shape Arrays => npiglo,npjglo ='), npiglo,npjglo
@@ -257,7 +311,10 @@ else:
 for tim in range(frd,fre):
     # read the data and apply scaling and offset (can be 1 and 0 btw ... )
     #  NOTE : for further improvement, the chosen vertical level must be intoduced here 
-    V2d = scalef*(id_in.variables[cv_in][tim,:,:]+offset)
+    if l3d :
+       V2d = scalef*(id_in.variables[cv_in][tim,klev,:,:]+offset)
+    else:
+       V2d = scalef*(id_in.variables[cv_in][tim,:,:]+offset)
 
     dat=cdftime.num2date(Xtim[tim])
     datstr = dat.strftime("%b-%d-%Y %H:%M")
@@ -303,6 +360,8 @@ for tim in range(frd,fre):
     cfig = cdir_figs+'/'+cf_plt+'.png'
     
 # Defining the map with matplotlib/basemap : Inspired from Laurent's code (kind of black box for JM)
+#    fig = plt.figure(num = 1, figsize=(vfig_size), dpi=None, facecolor='k', edgecolor='k')
+#    fig = plt.figure(num = 1,  dpi=None, facecolor='k', edgecolor='k')
     fig = plt.figure(num = 1,  figsize=(vfig_size), dpi=None, facecolor='k', edgecolor='k')
     ax  = plt.axes(vsporg, facecolor = 'w')
     
@@ -386,7 +445,10 @@ for tim in range(frd,fre):
     clb = mpl.colorbar.ColorbarBase(ax3, ticks=vc_value, cmap=cmap, norm=nrm_value, orientation='horizontal')
     
     # Add title
-    ax.annotate(cname+'('+unit+') '+datstr, xy=(0.3, 0.93),  xycoords='figure fraction')
+    if l3d:
+       ax.annotate(str(int(round(gdep[klev])))+"m "+cname+'('+unit+') '+datstr, xy=(0.3, 0.93),  xycoords='figure fraction')
+    else:
+       ax.annotate(cname+'('+unit+') '+datstr, xy=(0.3, 0.93),  xycoords='figure fraction')
     
     # save plot to file
     plt.savefig(cfig,dpi=dpi,orientation='portrait', transparent=False)
