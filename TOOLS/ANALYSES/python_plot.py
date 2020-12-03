@@ -66,7 +66,8 @@ parser.add_argument('-scale','--vsca' ,type=float, default=misval,  required=Fal
 parser.add_argument('-bckgrd','--bkgrd',           default=mischr,  required=False, help='specify a background map : [none], etopo, shadedrelief, bluemarble')
 parser.add_argument('-figsz','--figsz', nargs=2,   default=[6.4,4.8],  required=False, help='specify figsize in inches ( width, height) ')
 parser.add_argument('-res','--res',                default='c'   ,  required=False, help='specify the resolution of the coastline: one of c, l, i, h, f [c]' )
-parser.add_argument('-depv','--depth_var',         default='deptht' , required=False, help='specify the name of the depth variable in 3D file [deptht]' )
+parser.add_argument('-depv','--depth_var',         default='deptht',required=False, help='specify the name of the depth variable in 3D file [deptht]' )
+parser.add_argument('-dep','--dep'    ,type=float, default=-1,      required=False, help='specify the dep where to plot (if klev specified, klev is taken) ')
 
 args = parser.parse_args()
 ####
@@ -94,8 +95,9 @@ zfigsz = args.figsz
 res    = args.res
 klev   = args.klev
 vdep   = args.depth_var
+dep    = args.dep
 
-if klev == -1 :
+if klev == -1 and dep == -1:
    l3d = False
 else:
    l3d = True
@@ -122,6 +124,10 @@ if not path.exists(cdir_figs): mkdir(cdir_figs)
 
 print ' INPUT_FILE  : ', cf_in
 print '    variable : ', cv_in
+if l3d:
+   print '    plot level :', klev
+
+
 
 # predifined variables ... for each predefined variables (according to their name in netcdf data file)
 #                          some values are defined ... lmsk is set to true for ocean variable
@@ -282,6 +288,8 @@ Xlat = id_in.variables['nav_lat'][:,:]
 # read depth in case of 3D file and 3D var to plot
 if l3d:
    gdep = id_in.variables[vdep][:]
+   (npk,) = npm.shape(gdep)
+   print "    depth : "+gdep(klev)+"m"
 
 # get the size of the data set from the nav_lon variable (why not ? ) 
 (npjglo,npiglo) = nmp.shape(Xlon) ; print('Shape Arrays => npiglo,npjglo ='), npiglo,npjglo
@@ -365,20 +373,16 @@ for tim in range(frd,fre):
     fig = plt.figure(num = 1,  figsize=(vfig_size), dpi=None, facecolor='k', edgecolor='k')
     ax  = plt.axes(vsporg, facecolor = 'w')
     
-    carte = Basemap(llcrnrlon=lonmin-eps, llcrnrlat=max(latmin-eps,-90), urcrnrlon=lonmax+eps, urcrnrlat=min(latmax+eps,360), \
+    if proj == "merc"  or proj == "cyl":
+        carte = Basemap(llcrnrlon=lonmin-eps, llcrnrlat=max(latmin-eps,-90), urcrnrlon=lonmax+eps, urcrnrlat=min(latmax+eps,360), \
                     resolution=res, area_thresh=10., projection=proj, lon_0=lon_0, lat_0=lat_0,\
                     epsg=None)
+    else:
+        print "projection "+proj+"  is not suppoted yet :("
+        quit()
     
     x0,y0 = carte(Xlon,Xlat)
 
-# Some debugging print 
-    print " JM1 ", x0[nj-1,ni-1]
-    print "     ", y0[nj-1,ni-1]
-
-    print "x0 zoom : ", x0[1200, npiglo-5:npiglo+1]
-    print "x0 zoom : ", x0[1200, 0:4]
-    print "x0 zoom : ", Xlon[1200, npiglo-5:npiglo+1]
-    print "x0 zoom : ", Xlon[1200, 0:4]
 #
     if  imin > imax :  # need to shuffle the data and lon lat ...
 #      initialize plotting array (pxxx) with zeros. So far create the array at the right size (zoom data)
