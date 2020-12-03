@@ -287,9 +287,9 @@ Xlat = id_in.variables['nav_lat'][:,:]
 
 # read depth in case of 3D file and 3D var to plot
 if l3d:
-   gdep = id_in.variables[vdep][:]
-   (npk,) = npm.shape(gdep)
-   print "    depth : "+gdep(klev)+"m"
+   gdep   = id_in.variables[vdep][:]
+   (npk,) = nmp.shape(gdep)
+   print "    depth : "+str(gdep[klev])+"m"
 
 # get the size of the data set from the nav_lon variable (why not ? ) 
 (npjglo,npiglo) = nmp.shape(Xlon) ; print('Shape Arrays => npiglo,npjglo ='), npiglo,npjglo
