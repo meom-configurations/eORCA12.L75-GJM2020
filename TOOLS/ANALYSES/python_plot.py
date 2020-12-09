@@ -32,6 +32,8 @@ import warnings
 
 import datetime
 import netcdftime as nctime
+from charpal import *
+from charlib import *
 
 ##
 warnings.filterwarnings("ignore")
@@ -51,6 +53,7 @@ requiredNamed.add_argument('-wij', '--ijwindow',         required=True, nargs=4,
 requiredNamed.add_argument('-wlonlat', '--lonlatwindow', required=True, nargs=4, help=' plot window in lonlat coordinate (lonmin latmin lonmax latmax)' )
 #  Options
 parser.add_argument('-p', '--palette',             default='plasma',required=False, help='specify the palette name')
+parser.add_argument('-pc', '--chartpal',           default='None'  ,required=False, help='specify the CHART-like palette name')
 parser.add_argument('-d', '--figures',             default='./figs',required=False, help='specify the output directory')
 parser.add_argument('-t', '--frame',  type=int,    default=-1,      required=False, help='specify the beg frame  number, [all]')
 parser.add_argument('-nt', '--number',type=int,    default=-1,      required=False, help='specify the number of frame, [all]')
@@ -79,6 +82,7 @@ cv_in  = args.variable
 zzoom  = args.ijwindow
 zvp    = args.lonlatwindow
 # optional
+chpal  = args.chartpal
 cmap   = args.palette
 frame  = args.frame
 number = args.number
@@ -101,6 +105,12 @@ if klev == -1 and dep == -1:
    l3d = False
 else:
    l3d = True
+
+if chpal <> 'None':
+   pal=Palette()
+   dicopal=pal.__dict__
+   ctmp=dicopal[chpal]
+   cmap=colors.ListedColormap(ctmp)
 
 # 
 # transform strings in integer and float
@@ -132,128 +142,24 @@ if l3d:
 # predifined variables ... for each predefined variables (according to their name in netcdf data file)
 #                          some values are defined ... lmsk is set to true for ocean variable
 #                          note the vmin and vmax can be overwritten using command line option -vmin <value> -vmax <value>
-if cv_in == 'SST':
-    cname  = 'Surface temperature '
-    vmin   = 14
-    vmax   = 30
-    offset = -273.
-    scalef = 1.
-    unit   = 'DegC'
-    tick   = 2
-    lmsk   = False
+clrlayer=Color()   # Color define a class and its attribute.
+                   # The idea is to follow CHART (NCL) principle with plot layer as object (color contour, vector
+                   # overlay.
+clrlayer.clrvar  = cv_in
+clrlayer.clrdata = cf_in
 
-elif cv_in == 'QFX':
-    cname  = 'Evaporation '
-    vmin   = 0
-    vmax   = 10
-    offset = 0
-    scalef = 86400.
-    unit   = 'mm/day'
-    tick   = 1
-    lmsk   = False
+colorinit(clrlayer) # use clrvar in order to identify some defaulta values
+                    # This call replace the initialisation formely done in the program
+                    # which was difficult to maintain and reduce readibility of the code
 
-elif cv_in == 'QFX_SEA':
-    cname  = 'Evaporation '
-    vmin   = 0
-    vmax   = 10
-    offset = 0
-    scalef = 86400.
-    unit   = 'mm/day'
-    tick   = 1
-    lmsk   = False
-
-elif cv_in == 'sos':
-    cname  = 'Sea Surface Salinity '
-    vmin   = 35.5
-    vmax   = 37.5
-    offset = 0
-    scalef = 1
-    unit   = '--'
-    tick   = 0.4
-    lmsk   = True
-
-elif cv_in == 'sovitmod':
-    cname  ='Sea Surface Velocity '
-    vmin   = 0.
-    vmax   = 1.
-    offset = 0
-    scalef = 1
-    unit   = 'm/s'
-    tick   = 0.1
-    lmsk   = True
-
-elif cv_in == 'sosstsst':
-    cname  = 'Sea Surface Temperature '
-    vmin   = -2.0
-    vmax   = 32.0
-    offset = 0
-    scalef = 1
-    unit   = 'DegC'
-    tick   = 2
-    lmsk   = True
-
-elif cv_in == 'sosaline':
-    cname  = 'Sea Surface Salinity '
-    vmin   = 32
-    vmax   = 35
-    offset = 0
-    scalef = 1
-    unit   = 'PSU'
-    tick   = 0.5
-    lmsk   = True
-
-elif cv_in == 'votemper':
-    cname  = 'Conservative Temperature'
-    vmin   = 0
-    vmax   = 30
-    offset = 0
-    scalef = 1
-    unit   = 'DegC'
-    tick   = 1
-    lmsk   = True
-
-elif cv_in == 'vosaline':
-    cname  = 'Absolute Salinity'
-    vmin   = 32
-    vmax   = 35
-    offset = 0
-    scalef = 1
-    unit   = 'g/kg'
-    tick   = 0.2
-    lmsk   = True
-
-elif cv_in == 'sossheig':
-    cname  = 'Sea Surface Height'
-    vmin   = -2
-    vmax   = 2
-    offset = 0
-    scalef = 1
-    unit   = 'm'
-    tick   = 0.2
-    lmsk   = True
-
-elif cv_in == 'somxl010':
-    cname  = 'Mixed Layer Depth '
-    vmin   = 0
-    vmax   = 1800
-    offset = 0
-    scalef = 1
-    unit   = 'm'
-    tick   = 150
-    lmsk   = True
-
-elif cv_in == 'siconc':
-    cname  = 'Sea ice concentration'
-    vmin   = 0.
-    vmax   = 1.
-    offset = 0
-    scalef = 1
-    unit   = ''
-    tick   = 0.1
-    lmsk   = False
-else:
-    print 'ERROR : variable ',cv_in, ' not yet supported.' 
-    quit()
+cname  = clrlayer.clrlnam
+vmin   = clrlayer.clrmin
+vmax   = clrlayer.clrmax
+offset = clrlayer.offset
+scalef = clrlayer.scalef
+unit   = clrlayer.unit
+tick   = clrlayer.tick
+lmsk   = clrlayer.lmsk
 
 # scale factor and offset are intended for units changes  (for instance from K to degC, or from kg/m2/s to mm/day ... )
 print ' SCALE factor  OFFSET', scalef, offset, 'for ',cv_in
@@ -439,9 +345,22 @@ for tim in range(frd,fre):
 
     carte.drawcoastlines(linewidth=0.5)
 
+    # if longitude 0 is in the longitude range, force longitude 0 to be labeled
+    if lonmin <=  0  and lonmax >= 0:
+       nmeridian= int((lonmax -lonmin ) /xstep)
+       meridians= nmp.arange(-nmeridian * xstep, nmeridian *xstep, xstep )
+    else:
+       meridians=nmp.arange(lonmin,lonmax+xstep,xstep)
+    # if  Equator is in the latitude range, force Equator to be labeled
+    if latmin <=  0  and latmax >= 0:
+       nparallel = int((latmax -latmin ) /ystep)
+       parallels = nmp.arange(-nparallel * ystep, nparallel *ystep, ystep )
+    else:
+       parallels=nmp.arange(latmin,latmax+ystep,ystep)
+
     # may be usefull to choose labels on options, using those actuals values as default
-    carte.drawmeridians(nmp.arange(lonmin,lonmax+xstep,xstep), labels=[1,0,0,1], linewidth=0.3)
-    carte.drawparallels(nmp.arange(latmin,latmax+ystep,ystep), labels=[1,0,0,1], linewidth=0.3)
+    carte.drawmeridians(meridians, labels=[1,0,0,1], linewidth=0.3)
+    carte.drawparallels(parallels, labels=[1,0,0,1], linewidth=0.3)
 
     # add color bar  : Crappy numbers linked to vsporg
     ax3 = plt.axes( [0.1,0.05,0.80,0.015])
