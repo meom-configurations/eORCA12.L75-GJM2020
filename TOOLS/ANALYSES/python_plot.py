@@ -34,6 +34,7 @@ import datetime
 import netcdftime as nctime
 from charpal import *
 from charlib import *
+import math
 
 ##
 warnings.filterwarnings("ignore")
@@ -71,6 +72,7 @@ parser.add_argument('-figsz','--figsz', nargs=2,   default=[6.4,4.8],  required=
 parser.add_argument('-res','--res',                default='c'   ,  required=False, help='specify the resolution of the coastline: one of c, l, i, h, f [c]' )
 parser.add_argument('-depv','--depth_var',         default='deptht',required=False, help='specify the name of the depth variable in 3D file [deptht]' )
 parser.add_argument('-dep','--dep'    ,type=float, default=-1,      required=False, help='specify the dep where to plot (if klev specified, klev is taken) ')
+parser.add_argument('-log','--log'    ,action='store_true',         required=False, help='ask for a lo10 scale ) ')
 
 args = parser.parse_args()
 ####
@@ -100,6 +102,7 @@ res    = args.res
 klev   = args.klev
 vdep   = args.depth_var
 dep    = args.dep
+clrlog = args.log
 
 if klev == -1 and dep == -1:
    l3d = False
@@ -136,6 +139,7 @@ print ' INPUT_FILE  : ', cf_in
 print '    variable : ', cv_in
 if l3d:
    print '    plot level :', klev
+   print '    requ depth :', dep
 
 
 
@@ -195,7 +199,19 @@ Xlat = id_in.variables['nav_lat'][:,:]
 if l3d:
    gdep   = id_in.variables[vdep][:]
    (npk,) = nmp.shape(gdep)
-   print "    depth : "+str(gdep[klev])+"m"
+   if dep <> -1 :
+      for k in range(0,npk):
+          if gdep[k] < dep :
+             k0=k
+     
+      alpha=( float(dep) - gdep[k0] ) / (gdep[k0+1] - gdep[k0] )
+      deplabel = int(round(dep))
+      print "    depth : "+str(dep)+"m"
+      print "    between : "+str(k0)+" and "+str(k0+1)
+   else:
+      print "    depth : "+str(gdep[klev])+"m"
+      print "    klev  : "+str(klev)
+      deplabel = int(round(gdep[klev]))
 
 # get the size of the data set from the nav_lon variable (why not ? ) 
 (npjglo,npiglo) = nmp.shape(Xlon) ; print('Shape Arrays => npiglo,npjglo ='), npiglo,npjglo
@@ -226,7 +242,12 @@ for tim in range(frd,fre):
     # read the data and apply scaling and offset (can be 1 and 0 btw ... )
     #  NOTE : for further improvement, the chosen vertical level must be intoduced here 
     if l3d :
-       V2d = scalef*(id_in.variables[cv_in][tim,klev,:,:]+offset)
+       if klev == -1 :
+          V2d0 = scalef*(id_in.variables[cv_in][tim,k0,  :,:]+offset)
+          V2d1 = scalef*(id_in.variables[cv_in][tim,k0+1,:,:]+offset)
+          V2d  = alpha * V2d1 + (1. - alpha) * V2d0
+       else :
+          V2d = scalef*(id_in.variables[cv_in][tim,klev,:,:]+offset)
     else:
        V2d = scalef*(id_in.variables[cv_in][tim,:,:]+offset)
 
@@ -325,8 +346,12 @@ for tim in range(frd,fre):
        if lmsk:
           pV2d=nmp.ma.masked_where(pV2d == 0 , pV2d) 
 
+    if clrlog :
+      pV2d=nmp.log10(pV2d)
+      nrm_value = colors.Normalize(vmin=math.log10(vmin),  vmax=math.log10(vmax), clip=False)
+    else:
+      nrm_value = colors.Normalize(vmin=vmin, vmax=vmax, clip=False)
 
-    nrm_value = colors.Normalize(vmin=vmin, vmax=vmax, clip=False)
 # Keep track of various tests ...
     #cmap=['#0033FF','#0050FF','#006FFF','#008DFF','#15AAFF','#3BC8FF','#60E7FF','#91FFFF','#D7FFF5','#F5FFD7','#FFFF91','#FFE760','#FFC83B','#FFAA15','#FF8700','#FF5A00','#FF2D00']
     ft = carte.pcolormesh(px0,py0,pV2d, cmap = cmap, norm=nrm_value )
@@ -369,7 +394,7 @@ for tim in range(frd,fre):
     
     # Add title
     if l3d:
-       ax.annotate(str(int(round(gdep[klev])))+"m "+cname+'('+unit+') '+datstr, xy=(0.3, 0.93),  xycoords='figure fraction')
+       ax.annotate(str(deplabel)+"m "+cname+'('+unit+') '+datstr, xy=(0.3, 0.93),  xycoords='figure fraction')
     else:
        ax.annotate(cname+'('+unit+') '+datstr, xy=(0.3, 0.93),  xycoords='figure fraction')
     
