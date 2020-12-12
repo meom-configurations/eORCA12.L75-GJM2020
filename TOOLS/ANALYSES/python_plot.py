@@ -54,7 +54,7 @@ requiredNamed.add_argument('-wij', '--ijwindow',         required=True, nargs=4,
 requiredNamed.add_argument('-wlonlat', '--lonlatwindow', required=True, nargs=4, help=' plot window in lonlat coordinate (lonmin latmin lonmax latmax)' )
 #  Options
 parser.add_argument('-p', '--palette',             default='plasma',required=False, help='specify the palette name')
-parser.add_argument('-pc', '--chartpal',           default='None'  ,required=False, help='specify the CHART-like palette name')
+parser.add_argument('-pc', '--chartpal',           default=mischr  ,required=False, help='specify the CHART-like palette name')
 parser.add_argument('-d', '--figures',             default='./figs',required=False, help='specify the output directory')
 parser.add_argument('-t', '--frame',  type=int,    default=-1,      required=False, help='specify the beg frame  number, [all]')
 parser.add_argument('-nt', '--number',type=int,    default=-1,      required=False, help='specify the number of frame, [all]')
@@ -65,6 +65,7 @@ parser.add_argument('-xstep','--xstep',type=float, default=45.0,    required=Fal
 parser.add_argument('-ystep','--ystep',type=float, default=45.0,    required=False, help='specify latitude graduation [45] ')
 parser.add_argument('-vmin','--varmin',type=float, default=misval,  required=False, help='specify vmin for the variable ')
 parser.add_argument('-vmax','--varmax',type=float, default=misval,  required=False, help='specify vmin for the variable ')
+parser.add_argument('-clrlim','--clrlim',          default=mischr,  required=False, help='Give the name of a clrlim file')
 parser.add_argument('-offset','--voff',type=float, default=misval,  required=False, help='specify offset valuoffset value ')
 parser.add_argument('-scale','--vsca' ,type=float, default=misval,  required=False, help='specify scaling factor ')
 parser.add_argument('-bckgrd','--bkgrd',           default=mischr,  required=False, help='specify a background map : [none], etopo, shadedrelief, bluemarble')
@@ -94,6 +95,7 @@ xstep  = args.xstep
 ystep  = args.ystep
 varmin = args.varmin
 varmax = args.varmax
+clrlim = args.clrlim
 voff   = args.voff
 vsca   = args.vsca
 bkgrd  = args.bkgrd
@@ -109,11 +111,22 @@ if klev == -1 and dep == -1:
 else:
    l3d = True
 
-if chpal <> 'None':
+if chpal <> mischr:
    pal=Palette()
    dicopal=pal.__dict__
    ctmp=dicopal[chpal]
    cmap=colors.ListedColormap(ctmp)
+
+# Read the color limit in a file. Each line contains a value from min to max. Each value will be labeled
+# Read the color limit in a file. Each line contains a value from min to max. Each value will be labeled
+if clrlim <> mischr:
+   with open(clrlim) as f:
+       vc_value=[float(line.rstrip()) for line in f]
+
+   vmin=nmp.array(vc_value).min()
+   vmax=nmp.array(vc_value).max()
+   varmin=misval
+   varmax=misval
 
 # 
 # transform strings in integer and float
@@ -157,8 +170,14 @@ colorinit(clrlayer) # use clrvar in order to identify some defaulta values
                     # which was difficult to maintain and reduce readibility of the code
 
 cname  = clrlayer.clrlnam
-vmin   = clrlayer.clrmin
-vmax   = clrlayer.clrmax
+
+if clrlim == mischr:
+   vmin   = clrlayer.clrmin
+   vmax   = clrlayer.clrmax
+else:
+   clrlayer.clrmin = vmin
+   clrlayer.clrmax = vmax
+
 offset = clrlayer.offset
 scalef = clrlayer.scalef
 unit   = clrlayer.unit
@@ -182,7 +201,8 @@ if vsca != misval:
    scalef = vsca
 
 # set some data out of the time loop
-vc_value = nmp.arange(vmin, vmax+0.1, tick) 
+if clrlim == mischr:
+   vc_value = nmp.arange(vmin, vmax+0.1, tick) 
 
 # Open the input file
 id_in = Dataset(cf_in)
@@ -347,8 +367,9 @@ for tim in range(frd,fre):
           pV2d=nmp.ma.masked_where(pV2d == 0 , pV2d) 
 
     if clrlog :
-      pV2d=nmp.log10(pV2d)
-      nrm_value = colors.Normalize(vmin=math.log10(vmin),  vmax=math.log10(vmax), clip=False)
+#      pV2d=nmp.log10(pV2d)
+#      nrm_value = colors.Normalize(vmin=math.log10(vmin),  vmax=math.log10(vmax), clip=False)
+      nrm_value = colors.LogNorm(vmin=vmin,  vmax=vmax, clip=False)
     else:
       nrm_value = colors.Normalize(vmin=vmin, vmax=vmax, clip=False)
 
@@ -390,7 +411,13 @@ for tim in range(frd,fre):
     # add color bar  : Crappy numbers linked to vsporg
     ax3 = plt.axes( [0.1,0.05,0.80,0.015])
 
-    clb = mpl.colorbar.ColorbarBase(ax3, ticks=vc_value, cmap=cmap, norm=nrm_value, orientation='horizontal')
+    if clrlog :
+        formatter = mpl.ticker.LogFormatter(base=10, labelOnlyBase=False,minor_thresholds=(1000,1000) )
+        print vc_value, vmin, vmax
+        clb = mpl.colorbar.ColorbarBase(ax3, ticks=vc_value, cmap=cmap, norm=nrm_value, orientation='horizontal',format=formatter)
+#        clb = mpl.colorbar.ColorbarBase(ax3, ticks=[1,10,100,1000,5000], cmap=cmap, norm=nrm_value, orientation='horizontal',format=formatter)
+    else:
+        clb = mpl.colorbar.ColorbarBase(ax3, ticks=vc_value, cmap=cmap, norm=nrm_value, orientation='horizontal')
     
     # Add title
     if l3d:
