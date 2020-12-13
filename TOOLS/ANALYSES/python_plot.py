@@ -72,7 +72,8 @@ parser.add_argument('-bckgrd','--bkgrd',           default=mischr,  required=Fal
 parser.add_argument('-figsz','--figsz', nargs=2,   default=[6.4,4.8],  required=False, help='specify figsize in inches ( width, height) ')
 parser.add_argument('-res','--res',                default='c'   ,  required=False, help='specify the resolution of the coastline: one of c, l, i, h, f [c]' )
 parser.add_argument('-depv','--depth_var',         default='deptht',required=False, help='specify the name of the depth variable in 3D file [deptht]' )
-parser.add_argument('-dep','--dep'    ,type=float, default=-1,      required=False, help='specify the dep where to plot (if klev specified, klev is taken) ')
+parser.add_argument('-dep','--dep'    ,type=float, default=-1.,     required=False, help='specify the dep where to plot (if klev specified, klev is taken) ')
+parser.add_argument('-tick','--tick'  ,type=float, default=-1.,     required=False, help='indicate the tick spacing on the label bar' )
 parser.add_argument('-log','--log'    ,action='store_true',         required=False, help='ask for a lo10 scale ) ')
 
 args = parser.parse_args()
@@ -105,6 +106,7 @@ klev   = args.klev
 vdep   = args.depth_var
 dep    = args.dep
 clrlog = args.log
+ticka  = args.tick
 
 if klev == -1 and dep == -1:
    l3d = False
@@ -144,6 +146,10 @@ lonmax =  float(zvp[2])  ; latmax = float(zvp[3])
 cf_plt = cf_in      # plot
 cf_in  = cf_in+".nc" # data (extension .nc is assumed so far ! )
 
+confcase = cf_in.split('_')[0]
+tag      = cf_in.split('_')[1]
+descrp   = cf_in.split('_')[2]
+
 # define and create the output directory for the png files
 cdir_figs = args.figures 
 if not path.exists(cdir_figs): mkdir(cdir_figs)
@@ -181,7 +187,13 @@ else:
 offset = clrlayer.offset
 scalef = clrlayer.scalef
 unit   = clrlayer.unit
-tick   = clrlayer.tick
+
+if  ticka == -1.:
+  tick   = clrlayer.tick
+else:
+  tick   = ticka
+  clrlayer.tick = tick
+
 lmsk   = clrlayer.lmsk
 
 # scale factor and offset are intended for units changes  (for instance from K to degC, or from kg/m2/s to mm/day ... )
@@ -421,9 +433,11 @@ for tim in range(frd,fre):
     
     # Add title
     if l3d:
-       ax.annotate(str(deplabel)+"m "+cname+'('+unit+') '+datstr, xy=(0.3, 0.93),  xycoords='figure fraction')
+       ax.annotate(str(deplabel)+"m "+cname+'('+unit+') '+datstr, xy=(0.3, 0.90),  xycoords='figure fraction')
     else:
-       ax.annotate(cname+'('+unit+') '+datstr, xy=(0.3, 0.93),  xycoords='figure fraction')
+       ax.annotate(cname+'('+unit+') '+datstr, xy=(0.3, 0.90),  xycoords='figure fraction')
+
+    ax.annotate(confcase, xy=(0.3, 0.93),  xycoords='figure fraction')
     
     # save plot to file
     plt.savefig(cfig,dpi=dpi,orientation='portrait', transparent=False)
