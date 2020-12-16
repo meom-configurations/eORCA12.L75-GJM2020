@@ -145,13 +145,33 @@ def colorinit(color):
             lmsk   = True
 
         elif cv_in == 'somxl010':
-            cname  = 'Mixed Layer Depth '
+            cname  = 'Mixed Layer Depth Rho 0.01 Crit'
             vmin   = 0
-            vmax   = 1800
+            vmax   = 2500
             offset = 0
             scalef = 1
             unit   = 'm'
-            tick   = 150
+            tick   = 500
+            lmsk   = True
+
+        elif cv_in == 'somxl030':
+            cname  = 'Mixed Layer Depth Rho 0.03 Crit'
+            vmin   = 0
+            vmax   = 2500
+            offset = 0
+            scalef = 1
+            unit   = 'm'
+            tick   = 500
+            lmsk   = True
+
+        elif cv_in == 'somxlt02':
+            cname  = 'Mixed Layer Depth Temp 0.2 Crit'
+            vmin   = 0
+            vmax   = 2500
+            offset = 0
+            scalef = 1
+            unit   = 'm'
+            tick   = 500
             lmsk   = True
 
         elif cv_in == 'siconc':

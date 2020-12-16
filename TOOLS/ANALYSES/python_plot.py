@@ -270,14 +270,27 @@ else:
       frd=frame
       fre=frame+number
 
+miss=0.
+try:
+   miss=id_in.variables[cv_in].getncattr('_FillValue')
+except:
+   pass
+
+try:
+   miss=id_in.variables[cv_in].getncattr('missing_value')
+except:
+   pass
+print ("use missing/Fill value : ", miss)
+
 for tim in range(frd,fre):
     # read the data and apply scaling and offset (can be 1 and 0 btw ... )
-    #  NOTE : for further improvement, the chosen vertical level must be intoduced here 
+
     if l3d :
        if klev == -1 :
           V2d0 = scalef*(id_in.variables[cv_in][tim,k0,  :,:]+offset)
           V2d1 = scalef*(id_in.variables[cv_in][tim,k0+1,:,:]+offset)
           V2d  = alpha * V2d1 + (1. - alpha) * V2d0
+          V2d  = nmp.ma.masked_where(V2d1 == miss, V2d )
        else :
           V2d = scalef*(id_in.variables[cv_in][tim,klev,:,:]+offset)
     else:
@@ -299,12 +312,6 @@ for tim in range(frd,fre):
 
     print cnum, ' ', datstr
 
-# Not clear : crappy hard coded  stuff
-    #vfig_size = [ 4, 4.5 ] 
-    vfig_size = [ float(zfigsz[0]), float(zfigsz[1]) ]
-    vsporg = [0.1, 0.12, 0.80, 0.75]
-    eps=0.10  # 0.1
-
     # define size of the data zoom
     nj=jmax - jmin + 1  
 
@@ -314,6 +321,24 @@ for tim in range(frd,fre):
        ni=imax - imin + npiglo -1   # take care of overlap of 2 points at periodicity
 
     print "Zoom data size: ", ni,"x", nj
+
+# Not clear : crappy hard coded  stuff
+    #vfig_size = [ 4, 4.5 ] 
+    vfig_size = [ float(zfigsz[0]), float(zfigsz[1]) ]
+    fc='w'
+    if proj <> "noproj":
+        #        left bot   width  height
+        vsporg = [0.1, 0.12, 0.80, 0.75]
+    else:
+        fc='lavender'  # force missing value to be shaded by fc
+        if ni >= nj :
+            height=(0.75*nj)/ni
+            vsporg = [0.1,0.15,0.8,height ]
+        else  :  # ni < nj
+            width = (0.8*ni)/nj
+            vsporg = [0.5-width/2.,0.15,width, 0.75 ]
+    eps=0.10  # 0.1
+
 
 # set variables for some projections.. To be improved for more projection (cyl and merc OK so far)
     lon_0 = (lonmin + lonmax)/2.
@@ -330,17 +355,22 @@ for tim in range(frd,fre):
 #    fig = plt.figure(num = 1, figsize=(vfig_size), dpi=None, facecolor='k', edgecolor='k')
 #    fig = plt.figure(num = 1,  dpi=None, facecolor='k', edgecolor='k')
     fig = plt.figure(num = 1,  figsize=(vfig_size), dpi=None, facecolor='k', edgecolor='k')
-    ax  = plt.axes(vsporg, facecolor = 'w')
+    ax  = plt.axes(vsporg, facecolor = fc)
     
     if proj == "merc"  or proj == "cyl":
         carte = Basemap(llcrnrlon=lonmin-eps, llcrnrlat=max(latmin-eps,-90), urcrnrlon=lonmax+eps, urcrnrlat=min(latmax+eps,360), \
                     resolution=res, area_thresh=10., projection=proj, lon_0=lon_0, lat_0=lat_0,\
                     epsg=None)
+    elif proj == "noproj":
+        carte = ax
+        x0=nmp.array([range(1,npiglo+1) for j in range (npjglo)])
+        y0=nmp.array([[j]*npiglo for j in range(1,npjglo+1)])
     else:
         print "projection "+proj+"  is not suppoted yet :("
         quit()
     
-    x0,y0 = carte(Xlon,Xlat)
+    if proj <> "noproj":
+        x0,y0 = carte(Xlon,Xlat)
 
 #
     if  imin > imax :  # need to shuffle the data and lon lat ...
@@ -368,7 +398,7 @@ for tim in range(frd,fre):
        print "======================"
        print pV2d[0,npiglo-imin -5:npiglo-imin+5]
        if lmsk:
-          pV2d=nmp.ma.masked_where(pV2d == 1 , pV2d) 
+          pV2d=nmp.ma.masked_where(pV2d == 1 , pV2d)   # this 1 value is strange ...
     else:
 #      Just extract the zoom
        pV2d = V2d[jmin:jmax , imin:imax ]
@@ -376,7 +406,7 @@ for tim in range(frd,fre):
        py0  =  y0[jmin:jmax , imin:imax ]
 #   Apply masking if required by the variable (assume here that 0  is the _FillValue or missing_value on land)
        if lmsk:
-          pV2d=nmp.ma.masked_where(pV2d == 0 , pV2d) 
+          pV2d=nmp.ma.masked_where(pV2d == miss , pV2d) 
 
     if clrlog :
 #      pV2d=nmp.log10(pV2d)
@@ -389,36 +419,37 @@ for tim in range(frd,fre):
     #cmap=['#0033FF','#0050FF','#006FFF','#008DFF','#15AAFF','#3BC8FF','#60E7FF','#91FFFF','#D7FFF5','#F5FFD7','#FFFF91','#FFE760','#FFC83B','#FFAA15','#FF8700','#FF5A00','#FF2D00']
     ft = carte.pcolormesh(px0,py0,pV2d, cmap = cmap, norm=nrm_value )
 
-    #   comment nice features for land filling as it uses lot of memory (ORCA12 case.)
-    #   Background option : default is 'none' : do nothing
-    #   possible method includes : bluemarble, shadedrelief, etopo
-    if bkgrd == 'etopo':
-       carte.etopo()
+    if proj <> "noproj":
+            #   comment nice features for land filling as it uses lot of memory (ORCA12 case.)
+            #   Background option : default is 'none' : do nothing
+            #   possible method includes : bluemarble, shadedrelief, etopo
+            if bkgrd == 'etopo':
+               carte.etopo()
 
-    if bkgrd == 'shadedrelief':
-       carte.shadedrelief()
+            if bkgrd == 'shadedrelief':
+               carte.shadedrelief()
 
-    if bkgrd == 'bluemarble' :
-       carte.bluemarble()
+            if bkgrd == 'bluemarble' :
+               carte.bluemarble()
 
-    carte.drawcoastlines(linewidth=0.5)
+            carte.drawcoastlines(linewidth=0.5)
 
-    # if longitude 0 is in the longitude range, force longitude 0 to be labeled
-    if lonmin <=  0  and lonmax >= 0:
-       nmeridian= int((lonmax -lonmin ) /xstep)
-       meridians= nmp.arange(-nmeridian * xstep, nmeridian *xstep, xstep )
-    else:
-       meridians=nmp.arange(lonmin,lonmax+xstep,xstep)
-    # if  Equator is in the latitude range, force Equator to be labeled
-    if latmin <=  0  and latmax >= 0:
-       nparallel = int((latmax -latmin ) /ystep)
-       parallels = nmp.arange(-nparallel * ystep, nparallel *ystep, ystep )
-    else:
-       parallels=nmp.arange(latmin,latmax+ystep,ystep)
+            # if longitude 0 is in the longitude range, force longitude 0 to be labeled
+            if lonmin <=  0  and lonmax >= 0:
+               nmeridian= int((lonmax -lonmin ) /xstep)
+               meridians= nmp.arange(-nmeridian * xstep, nmeridian *xstep, xstep )
+            else:
+               meridians=nmp.arange(lonmin,lonmax+xstep,xstep)
+            # if  Equator is in the latitude range, force Equator to be labeled
+            if latmin <=  0  and latmax >= 0:
+               nparallel = int((latmax -latmin ) /ystep)
+               parallels = nmp.arange(-nparallel * ystep, nparallel *ystep, ystep )
+            else:
+               parallels=nmp.arange(latmin,latmax+ystep,ystep)
 
-    # may be usefull to choose labels on options, using those actuals values as default
-    carte.drawmeridians(meridians, labels=[1,0,0,1], linewidth=0.3)
-    carte.drawparallels(parallels, labels=[1,0,0,1], linewidth=0.3)
+            # may be usefull to choose labels on options, using those actuals values as default
+            carte.drawmeridians(meridians, labels=[1,0,0,1], linewidth=0.3)
+            carte.drawparallels(parallels, labels=[1,0,0,1], linewidth=0.3)
 
     # add color bar  : Crappy numbers linked to vsporg
     ax3 = plt.axes( [0.1,0.05,0.80,0.015])
@@ -433,11 +464,11 @@ for tim in range(frd,fre):
     
     # Add title
     if l3d:
-       ax.annotate(str(deplabel)+"m "+cname+'('+unit+') '+datstr, xy=(0.3, 0.90),  xycoords='figure fraction')
+       ax.annotate(str(deplabel)+"m "+cname+'('+unit+') '+datstr, xy=(0.3, 0.91),  xycoords='figure fraction')
     else:
-       ax.annotate(cname+'('+unit+') '+datstr, xy=(0.3, 0.90),  xycoords='figure fraction')
+       ax.annotate(cname+'('+unit+') '+datstr, xy=(0.3, 0.91),  xycoords='figure fraction')
 
-    ax.annotate(confcase, xy=(0.3, 0.93),  xycoords='figure fraction')
+    ax.annotate(confcase, xy=(0.3, 0.94),  xycoords='figure fraction')
     
     # save plot to file
     plt.savefig(cfig,dpi=dpi,orientation='portrait', transparent=False)
