@@ -55,6 +55,9 @@ requiredNamed.add_argument('-wlonlat', '--lonlatwindow', required=True, nargs=4,
 #  Options
 parser.add_argument('-p', '--palette',             default='plasma',required=False, help='specify the palette name')
 parser.add_argument('-pc', '--chartpal',           default=mischr  ,required=False, help='specify the CHART-like palette name')
+parser.add_argument('-lnam', '--long_name',        default=mischr  ,required=False, help='specify the long name of the variable')
+parser.add_argument('-tit1', '--title1',           default=mischr  ,required=False, help='specify title-1 for the plot')
+parser.add_argument('-tit2', '--title2',           default=mischr  ,required=False, help='specify title-2 for the plot')
 parser.add_argument('-d', '--figures',             default='./figs',required=False, help='specify the output directory')
 parser.add_argument('-t', '--frame',  type=int,    default=-1,      required=False, help='specify the beg frame  number, [all]')
 parser.add_argument('-nt', '--number',type=int,    default=-1,      required=False, help='specify the number of frame, [all]')
@@ -74,7 +77,8 @@ parser.add_argument('-res','--res',                default='c'   ,  required=Fal
 parser.add_argument('-depv','--depth_var',         default='deptht',required=False, help='specify the name of the depth variable in 3D file [deptht]' )
 parser.add_argument('-dep','--dep'    ,type=float, default=-1.,     required=False, help='specify the dep where to plot (if klev specified, klev is taken) ')
 parser.add_argument('-tick','--tick'  ,type=float, default=-1.,     required=False, help='indicate the tick spacing on the label bar' )
-parser.add_argument('-log','--log'    ,action='store_true',         required=False, help='ask for a lo10 scale ) ')
+parser.add_argument('-log','--log'    ,action='store_true',         required=False, help='ask for a lo10 scale  ')
+parser.add_argument('-orca','--orca'  ,action='store_true',         required=False, help='shift longitude > 73 degree for orca grid  ')
 
 args = parser.parse_args()
 ####
@@ -106,7 +110,15 @@ klev   = args.klev
 vdep   = args.depth_var
 dep    = args.dep
 clrlog = args.log
+lorca  = args.orca
 ticka  = args.tick
+clname = args.long_name
+tit1   = args.title1
+tit2   = args.title2
+
+print tit1
+print tit2
+
 
 if klev == -1 and dep == -1:
    l3d = False
@@ -184,6 +196,9 @@ else:
    clrlayer.clrmin = vmin
    clrlayer.clrmax = vmax
 
+if clname <> mischr:
+   cname = clname
+
 offset = clrlayer.offset
 scalef = clrlayer.scalef
 unit   = clrlayer.unit
@@ -223,7 +238,10 @@ list_var = id_in.variables.keys()
 
 Xlon = id_in.variables['nav_lon'][:,:]
 #  This point is to be improved... It works dor PAcific values in order to avoid discontinuity in longitude at the date line (180 E/W) 
-#Xlon =nmp.where(Xlon > 73, Xlon-360,Xlon )
+### JMM 73
+if lorca :
+   Xlon =nmp.where(Xlon > 73, Xlon-360,Xlon )
+   #Xlon =nmp.where(Xlon < 0 , Xlon+360,Xlon )
 
 Xlat = id_in.variables['nav_lat'][:,:]
 
@@ -255,7 +273,12 @@ Xtim = id_in.variables['time_counter'][:]
 time_counter=id_in.variables['time_counter']
 units=time_counter.getncattr('units')
 cal='standard'
-cal=time_counter.getncattr('calendar')
+try:
+  cal=time_counter.getncattr('calendar')
+except:
+  cal='standard'
+  units="days since 1955-01-01 00:00:00"
+
 cdftime=nctime.utime(units,calendar=cal)
 
 # time frame selection
@@ -407,6 +430,7 @@ for tim in range(frd,fre):
 #   Apply masking if required by the variable (assume here that 0  is the _FillValue or missing_value on land)
        if lmsk:
           pV2d=nmp.ma.masked_where(pV2d == miss , pV2d) 
+          pV2d=nmp.ma.masked_where(pV2d == 0    , pV2d) 
 
     if clrlog :
 #      pV2d=nmp.log10(pV2d)
@@ -463,12 +487,18 @@ for tim in range(frd,fre):
         clb = mpl.colorbar.ColorbarBase(ax3, ticks=vc_value, cmap=cmap, norm=nrm_value, orientation='horizontal')
     
     # Add title
-    if l3d:
-       ax.annotate(str(deplabel)+"m "+cname+'('+unit+') '+datstr, xy=(0.3, 0.91),  xycoords='figure fraction')
+    if tit2 == mischr :
+       if l3d:
+          ax.annotate(str(deplabel)+"m "+cname+'('+unit+') '+datstr, xy=(0.3, 0.91),  xycoords='figure fraction')
+       else:
+          ax.annotate(cname+'('+unit+') '+datstr, xy=(0.3, 0.91),  xycoords='figure fraction')
     else:
-       ax.annotate(cname+'('+unit+') '+datstr, xy=(0.3, 0.91),  xycoords='figure fraction')
+        ax.annotate(tit2, xy=(0.3,0.91), xycoords='figure fraction')
 
-    ax.annotate(confcase, xy=(0.3, 0.94),  xycoords='figure fraction')
+    if tit1 == mischr :
+        ax.annotate(confcase, xy=(0.3, 0.94),  xycoords='figure fraction')
+    else:
+        ax.annotate(tit1, xy=(0.3, 0.94),  xycoords='figure fraction')
     
     # save plot to file
     plt.savefig(cfig,dpi=dpi,orientation='portrait', transparent=False)

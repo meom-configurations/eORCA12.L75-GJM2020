@@ -43,6 +43,43 @@ def colorinit(color):
             unit   = 'DegC'
             tick   = 2
             lmsk   = False
+        elif cv_in == 'WSPD10':
+            cname  = '10m wind speed'
+            vmin   = 0
+            vmax   = 25
+            offset = 0
+            scalef = 1.
+            unit   = 'm/s'
+            tick   = 5
+            lmsk   = True
+        elif cv_in == 'HFX':
+            cname  = 'Sensible Heat Flux'
+            vmin   = -400
+            vmax   = 400
+            offset = 0
+            scalef = 1.
+            unit   = 'W/m2'
+            tick   = 100
+            lmsk   = False
+        elif cv_in == 'LH':
+            cname  = 'Latent Heat Flux'
+            vmin   = -400
+            vmax   = 400
+            offset = 0
+            scalef = 1.
+            unit   = 'W/m2'
+            tick   = 100
+            lmsk   = False
+
+        elif cv_in == 'tos':
+            cname  = 'Sea Surface temperature '
+            vmin   = 0
+            vmax   = 30
+            offset = 0.
+            scalef = 1.
+            unit   = 'DegC'
+            tick   = 5
+            lmsk   = True
 
         elif cv_in == 'QFX':
             cname  = 'Evaporation '
