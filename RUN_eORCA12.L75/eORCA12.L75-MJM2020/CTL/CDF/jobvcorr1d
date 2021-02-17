@@ -1,0 +1,39 @@
+#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks=40
+#SBATCH --ntasks-per-node=40
+#SBATCH --threads-per-core=1
+#SBATCH -A cli@cpu
+#SBATCH -J Vcorr
+#SBATCH -e zvcor.e%j
+#SBATCH -o zvcor.o%j
+#SBATCH --time=10:00:00
+#SBATCH --exclusive
+
+ulimit -s unlimited
+CONFIG=eORCA12.L75
+CASE=GJM2020
+
+freq=1d
+year1=2012
+year2=2012
+
+CONFCASE=${CONFIG}-${CASE}
+
+SWDIR=$SDIR/${CONFIG}/${CONFCASE}-S/
+TOOLDIR=$DEVGIT/${CONFCASE}/TOOLS/V-correction
+
+n=0
+for y in $(seq $year1 $year2) ; do
+cd $SWDIR/$freq/$y/
+   for f in *_gridV.nc ; do
+     $TOOLDIR/cdf_vcorr -f $f  &
+     n=$(( n + 1 ))
+     if [ $n = 40 ] ; then
+       wait
+       n=0
+     fi
+   done
+done
+wait
+

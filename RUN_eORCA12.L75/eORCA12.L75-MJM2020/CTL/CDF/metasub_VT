@@ -1,0 +1,10 @@
+#!/bin/bash
+
+for y in $(seq 1983 3 2011) ; do
+  y1=$y
+  y2=$(( y + 2 ))
+  if [ $y2 -gt 2011 ] ; then
+     y2=2011
+  fi
+  sbatch jobmoy_year_VT $y1 $y2
+done

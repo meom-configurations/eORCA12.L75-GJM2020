@@ -1,0 +1,27 @@
+#!/bin/bash
+
+cat << eof > sovitmod.clrmark
+0.5
+1
+5
+10
+20
+50
+100
+eof
+
+cat sovitmod.clrmark | awk '{ print sqrt(sqrt($1)) }' > sovitmod.clrmark1
+u=eORCA12.L75-GJM2020_y1980m01d01.1d_vitasurf.nc
+tag=$( echo $u | awk -F_ '{print $2}' | awk -F. '{print $1}'  )
+
+ chart -p ./ssec.pal -clrdata eORCA12.L75-GJM2020_y1980m01d01.1d_vitasurf.nc  -pixel \
+  -zoom  1 4322 450 3606 \
+  -clrvar sovitmod  -clrscale 100 -clrlow \
+  -clrmark sovitmod.clrmark1  -format PALETTE I3 \
+  -title "Surface velocities "$tag
+
+./convcgm gmeta
+ctrans -d sun -res 1024x1024 gmeta.sw > toto.sun
+convert -quality 100 -density 300 toto.sun toto.gif
+ idt gmeta.sw
+

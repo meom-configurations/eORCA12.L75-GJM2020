@@ -1,0 +1,51 @@
+#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks=40
+#SBATCH --ntasks-per-node=40
+#SBATCH --threads-per-core=1
+#SBATCH -A cli@cpu
+#SBATCH -J moyVT
+#SBATCH -e zmoyvt.e%j
+#SBATCH -o zmoyvt.o%j
+#SBATCH --time=6:00:00
+#SBATCH --exclusive
+
+if [ $# != 2 ] ; then
+   echo "USAGE: sbatch jobmoy_year_VT year_deb year_end"
+   exit
+fi
+
+CONFIG=eORCA12.L75
+CASE=GJM2020
+
+freq=1d
+year1=$1
+year2=$2
+
+
+CONFCASE=${CONFIG}-${CASE}
+n=0
+for year in $( seq $year1 $year2 ) ; do 
+SWDIR=$SDIR/$CONFIG/${CONFCASE}-S/$freq/$year
+MWDIR=$WORK/$CONFIG/${CONFCASE}-MEAN/$freq/$year
+
+mkdir -p $MWDIR
+
+
+cd $SWDIR
+
+   for mon in {01..12} ; do
+     taglst=""
+     for f in ${CONFCASE}_y${year}m${mon}d??.${freq}_gridU.nc  ; do
+        tag=$( echo $f | awk -F_ '{print $2}'  )
+        taglst="$taglst $tag "
+     done
+     cdfvT -nc4 -c $CONFCASE -o $MWDIR/${CONFCASE}_y${year}m${mon}.${freq}_VT.nc -l  $taglst &
+     n=$(( n + 1 ))
+     if [ $n = 36 ] ; then
+       wait
+       n=0
+     fi
+   done
+done
+wait

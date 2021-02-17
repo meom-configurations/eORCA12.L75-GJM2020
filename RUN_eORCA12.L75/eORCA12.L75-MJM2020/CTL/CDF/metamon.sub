@@ -1,0 +1,149 @@
+#!/bin/bash
+#key_jade -N zmetamon
+#key_jade -l select=1:ncpus=40:mpiprocs=40
+#key_jade -l walltime=06:00:00
+#key_jade -l cluster=hpt
+#key_jade -M Jean-Marc.Molines@univ-grenoble-alpes.fr
+#key_jade -mb -me
+#key_jade -v NB_NODES=1
+
+#key_vayu -N zmetamon
+#key_vayu -l ncpus=40
+#key_vayu -l walltime=06:00:00
+#key_vayu -M Jean-Marc.Molines@univ-grenoble-alpes.fr
+#key_vayu -mb -me
+#key_vayu -Wgroup_list=v45
+#key_vayu -P x77
+#key_vayu -q normal
+#key_vayu -v NB_NODES=1
+
+#SBATCH --nodes=1
+#SBATCH --ntasks=33
+#SBATCH --ntasks-per-node=40
+#SBATCH --threads-per-core=1
+#SBATCH -A cli@cpu
+#SBATCH -J zmetamon
+#SBATCH -e zmetamon.e%j
+#SBATCH -o zmetamon.o%j
+#SBATCH --time=06:00:00
+#SBATCH --exclusive
+
+
+#MSUB -r zmetamon
+#MSUB -n  33
+#MSUB -N  1
+#MSUB -T 06:00:00
+#MSUB -q standard
+#MSUB -o zmetamon.%I
+#MSUB -e zmetamon.%I
+#MSUB -A cli@cpu
+
+#$ -N zmetamon 
+#$ -cwd
+#$ -j y
+#$ -S /bin/bash
+#$ -pe one 33
+#$ -v NB_NODES=1
+
+### LoadLeveler on ULAM and VARGAS
+## title of the run
+# @ job_name = zmetamon
+## Output listing location
+# @ output = $(job_name).$(jobid)
+# @ error  = $(output)
+# @ job_type = parallel
+### DO NEVER ERASE THE FOLLOWING LINE
+# @ total_tasks = 33
+# specifique Adapp
+# @ requirements = (Feature == "prepost")
+# @ wall_clock_limit = 06:00:00
+# @ as_limit = 3.2gb
+# @ queue
+
+## If R_MONITOR is a TMPDIR created by the job manager :
+## the scripts copied by RUN_metamon are lost in the haze of a forgotten no man's land
+## so we copy another time. If they are already there, it could do no harm
+
+RNDTMPDIR=0
+
+if [ $RNDTMPDIR == 1 ] ; then
+
+cp ./config_def         $TMPDIR
+cp ./function_def       $TMPDIR
+
+cd $TMPDIR
+
+. ./config_def
+. ./function_def
+
+cp $PRODTOOLS/create_sections_list    $TMPDIR
+cp $PRODTOOLS/drakkar_sections_table.txt  $TMPDIR
+cp $PRODTOOLS/drakkar_trpsig_table.txt    $TMPDIR
+cp $PRODTOOLS/monitor_prod            $TMPDIR
+
+if [ $useMPI == 1 ] ; then cp $MPITOOLS/mpi_metamon $TMPDIR ; fi
+
+else
+
+cd /gpfsscratch/rech/cli/rcli002/MONITOR_eORCA12.L75-GJM2020/
+
+. ./config_def
+. ./function_def
+
+fi
+
+
+# set the list of years you want to monitor 'at once'  
+yinit=1980              # initial year 
+yend=2012
+
+YEARS=$( seq $yinit $yend )
+
+
+if [ $useMPI = 1 ] ; then
+### Yeah baby it is parallel !!!
+
+if [ $MACHINE = 'jade' ] ; then
+   mpiexec_mpt -n 33 ./mpi_metamon $YEARS
+elif [ $MACHINE = 'occigen' ] ; then
+   ulimit -s unlimited
+   srun --mpi=pmi2 -n 33  ./mpi_metamon $YEARS
+elif [ $MACHINE = 'occigen2' -o $MACHINE = 'jean-zay' ] ; then
+   ulimit -s unlimited
+   srun --mpi=pmi2 -n 33  ./mpi_metamon $YEARS
+elif [ $MACHINE = 'curie' ] ; then
+#  module unload netcdf
+#   module unload hdf5
+#   module load nco
+   ccc_mprun -E '-m cyclic ' -n 33  ./mpi_metamon $YEARS
+elif [ $MACHINE = 'vayu' ] ; then
+   mpirun -n 33  ./mpi_metamon $YEARS
+elif [ $MACHINE = 'gaia' ] ; then
+   source $HOME/.bashrc
+   mpirun -mca btl_tcp_if_include eth0 -np 33  ./mpi_metamon $YEARS
+elif [ $MACHINE = 'ulam' ] ; then
+   ./mpi_metamon $YEARS
+elif [ $MACHINE = 'ada' ] ; then
+   poe ./mpi_metamon $YEARS
+fi
+
+else
+### damn it is only sequential...
+### this allows to ensure compatibility for most of the tags
+  if [ ${#yinit} -gt 4 ] ; then
+     # interannual plot
+     chmod +x monitor_prod
+     ./monitor_prod $yinit
+  elif [ ${#yinit} -gt 4 ] ; then
+     # standard modern year
+     chmod +x monitor_prod
+     ./monitor_prod $yinit
+  else
+     # climato runs
+     yinit=$( printf "%04d" $yinit ) 
+     chmod +x monitor_prod
+     ./monitor_prod $yinit
+  fi
+
+
+fi
