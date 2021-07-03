@@ -220,6 +220,15 @@ def colorinit(color):
             unit   = ''
             tick   = 0.1
             lmsk   = False
+        elif cv_in == 'berg_melt':
+            cname  = 'Iceberg melting'
+            vmin   = 0.
+            vmax   = 1.
+            offset = 0
+            scalef = 86400
+            unit   = 'mm/day'
+            tick   = 0.5
+            lmsk   = False
         else:
             print 'ERROR : variable ',cv_in, ' not yet supported.' 
             quit()
