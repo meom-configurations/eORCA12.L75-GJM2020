@@ -372,7 +372,7 @@ for tim in range(frd,fre):
 
 # full path for the output filename... Time frame numbering broken 
 #   need to restore something for multi time frame files ...
-    cfig = cdir_figs+'/'+cf_plt+'.png'
+    cfig = cdir_figs+'/'+cf_plt+'_'+cnum+'.png'
     
 # Defining the map with matplotlib/basemap : Inspired from Laurent's code (kind of black box for JM)
 #    fig = plt.figure(num = 1, figsize=(vfig_size), dpi=None, facecolor='k', edgecolor='k')
@@ -381,8 +381,8 @@ for tim in range(frd,fre):
     ax  = plt.axes(vsporg, facecolor = fc)
     
     if proj == "merc"  or proj == "cyl":
-        carte = Basemap(llcrnrlon=lonmin-eps, llcrnrlat=max(latmin-eps,-90), urcrnrlon=lonmax+eps, urcrnrlat=min(latmax+eps,360), \
-                    resolution=res, area_thresh=10., projection=proj, lon_0=lon_0, lat_0=lat_0,\
+        carte = Basemap(llcrnrlon=lonmin-eps, llcrnrlat=max(latmin-eps,-90), urcrnrlon=lonmax+eps, urcrnrlat=min(latmax+eps,90), \
+                    resolution=res, area_thresh=10., projection=proj, lon_0=lon_0, lat_0=lat_0, \
                     epsg=None)
     elif proj == "noproj":
         carte = ax
@@ -402,10 +402,15 @@ for tim in range(frd,fre):
        pV2d  = nmp.zeros((nj,ni))
        px0   = nmp.zeros((nj,ni))
        py0   = nmp.zeros((nj,ni))
+       ndim=len(V2d.shape)
 #      for field value V2d (to be plotted) and for x-coord (x0) and y-coord (y0) variables
 #      fill the data according to the periodic line and overlap
-       pV2d[0:nj,            0:npiglo-imin-1]  = V2d[jmin:jmax+1,imin:npiglo-1]
-       pV2d[0:nj,npiglo-imin-1:ni           ]  = V2d[jmin:jmax+1,   1:imax+1  ]
+       if ndim == 2:
+         pV2d[0:nj,            0:npiglo-imin-1]  = V2d[jmin:jmax+1,imin:npiglo-1]
+         pV2d[0:nj,npiglo-imin-1:ni           ]  = V2d[jmin:jmax+1,   1:imax+1  ]
+       elif ndim == 3:
+         pV2d[0:nj,            0:npiglo-imin-1]  = V2d[0,jmin:jmax+1,imin:npiglo-1]
+         pV2d[0:nj,npiglo-imin-1:ni           ]  = V2d[0,jmin:jmax+1,   1:imax+1  ]
 
        px0[0:nj,            0:npiglo-imin-1]   = x0[jmin:jmax+1,imin:npiglo-1]
        px0[0:nj,npiglo-imin-1:ni           ]   = x0[jmin:jmax+1,   1:imax+1  ]
@@ -421,7 +426,9 @@ for tim in range(frd,fre):
        print "======================"
        print pV2d[0,npiglo-imin -5:npiglo-imin+5]
        if lmsk:
-          pV2d=nmp.ma.masked_where(pV2d == 1 , pV2d)   # this 1 value is strange ...
+          pV2d=nmp.ma.masked_where(pV2d == 1    , pV2d)   # this 1 value is strange ...
+          pV2d=nmp.ma.masked_where(pV2d == miss , pV2d) 
+          pV2d=nmp.ma.masked_where(pV2d == 0    , pV2d) 
     else:
 #      Just extract the zoom
        pV2d = V2d[jmin:jmax , imin:imax ]
