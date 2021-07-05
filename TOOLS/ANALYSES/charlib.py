@@ -265,6 +265,25 @@ def colorinit(color):
             unit   = 'mm/day'
             tick   = 1
             lmsk   = True
+        elif cv_in == 'vfxice':
+            cname  = 'ice-ocean fwf ice melt/growth'
+            vmin   = -10
+            vmax   = 10
+            offset = 0
+            scalef = 86400
+            unit   = 'mm/day'
+            tick   = 1
+            lmsk   = True
+        elif cv_in == 'vfxsnw':
+            cname  = 'ice-ocean fwf snw melt/growth'
+            vmin   = -10
+            vmax   = 10
+            offset = 0
+            scalef = 86400
+            unit   = 'mm/day'
+            tick   = 1
+            lmsk   = True
+
         else:
             print 'ERROR : variable ',cv_in, ' not yet supported.' 
             quit()
