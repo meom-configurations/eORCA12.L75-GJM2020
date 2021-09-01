@@ -9,7 +9,8 @@ import xarray as xr
 
 def usage():
    print " USAGE: "
-   print "     ",os.path.basename(sys.argv[0])," -p POINT-file -f DATA-file -v VARIABLE-name"
+   print "     ",os.path.basename(sys.argv[0])," -p POINT-file -f DATA-file -v VARIABLE-name [-obs OBS-file]"
+   print "                                       [-vobs OBS-var] [-win wl wb wr wt] [-siz x y ]"
    print " "
    print " PURPOSE: "
    print "     Draw a timeserie plot for the given VARIABLE-name in DATA-file as various locations"
@@ -28,7 +29,10 @@ def usage():
    print "                   attribute, that will be used in the title of the plot."
    print "   "
    print " OPTIONS:"
-   print "    None so far ..."
+   print "    -obs OBS-file : name of observation file with time series "
+   print "    -vobs OBS-variable : name of observation variable in file "
+   print "    -siz x y : size of the figure in x and y direction ( incehes)"
+   print "    -win wl wb wr wt : set limit of ploting windows left bottom right top (in [0-1] range."
    print "   "
    quit()
 #------------------------
@@ -44,12 +48,31 @@ def timeplot(pds,cd_var, px, py, param_dict):
    zdsloc=pds.isel(x=px,y=py)
    zout=zdsloc[cd_var].plot(**param_dict)
 #------------------------
+def timeplotobs(pds,cd_var, param_dict):
+   """
+     timeplot : plot time series
+     cd_var : name of netcdf variable
+     pds    : xarray data set containing cd_var
+     px, px : location in I J space for the time series
+     param_dict : all the matplotlib options passed to the plot
+   """
+   zout=pds[cd_var].plot(**param_dict)
+#------------------------
+
 
 def zparse():
-   global cf_points, cf_name, cv_name
+   global cf_points, cf_name, cv_name, cf_obs, cv_obs, fsz, vp
+   wl=0.07
+   wr=0.9
+   wb=0.2
+   wt=0.7
+   szx=12
+   szy=4
    cf_points="none"
    cf_name="none"
    cv_name="none"
+   cf_obs="none"
+   cv_obs="none"
    ijarg=1
    narg=len(sys.argv)-1
    while ijarg <= narg :
@@ -60,9 +83,26 @@ def zparse():
          cf_name=sys.argv[ijarg] ; ijarg=ijarg+1
       elif cldum == "-v":   # just an example
          cv_name=sys.argv[ijarg] ; ijarg=ijarg+1
+      elif cldum == "-obs":   # just an example
+         cf_obs=sys.argv[ijarg] ; ijarg=ijarg+1
+      elif cldum == "-vobs":   # just an example
+         cv_obs=sys.argv[ijarg] ; ijarg=ijarg+1
+      elif cldum == "-win":   # just an example
+         wl=float(sys.argv[ijarg]) ; ijarg=ijarg+1
+         wb=float(sys.argv[ijarg]) ; ijarg=ijarg+1
+         wr=float(sys.argv[ijarg]) ; ijarg=ijarg+1
+         wt=float(sys.argv[ijarg]) ; ijarg=ijarg+1
+      elif cldum == "-siz":   # just an example
+         szx=float(sys.argv[ijarg]) ; ijarg=ijarg+1
+         szy=float(sys.argv[ijarg]) ; ijarg=ijarg+1
       else:
          print " +++ ERROR : unknown option ", cldum
          usage()
+#   vp=[0.07, 0.2, 0.9, 0.70]
+   vp=[wl, wb, wr, wt]
+   fsz=(szx,szy)
+   print " Figure size : ", fsz
+   print "   view port : ", vp
 #----------------
 # main program starts here 
 cv_lon='nav_lon'
@@ -73,6 +113,10 @@ if n == 1:
    usage()
 
 zparse()
+
+if cv_obs != 'none' :
+   print " Observation file : " + cf_obs
+   print " Observation var : " + cv_obs
 
 # safety check here (none ... )
 chk=0
@@ -101,9 +145,15 @@ ds=xr.open_dataset(cf_name)
 rlon=ds.data_vars[cv_lon]
 rlat=ds.data_vars[cv_lat]
 
+if cv_obs != 'none' :
+   dsobs=xr.open_dataset(cf_obs)
+   vobs=dsobs.data_vars[cv_obs]
+
+
 # prepare graph
-fig = plt.figure(num = 1, figsize=(12,4), facecolor='w', edgecolor='k')   ; #LB: j'ouvre la figure #1 
-ax1 = plt.axes([0.07, 0.2, 0.9, 0.70])                                    ; #LB: occupation de l'espace par la figure
+#fig = plt.figure(num = 1, figsize=(12,4), facecolor='w', edgecolor='k')   ; #LB: j'ouvre la figure #1 
+fig = plt.figure(num = 1, figsize=fsz, facecolor='w', edgecolor='k')   ; #LB: j'ouvre la figure #1 
+ax1 = plt.axes(vp)                                    ; #LB: occupation de l'espace par la figure
 axes=plt.gca()
 #axes.set_xlim(20,50)
 #axes.set_ylim(36.95,37.15)
@@ -126,6 +176,8 @@ for line  in point:
    clat="{:5.1f}".format(lat)
    print cname, x, y , clon, clat
    timeplot(ds, cv_name, x,y, {'label': cname })
+   if cv_obs != 'none' :
+      timeplotobs(dsobs, cv_obs, {'label': 'Obs' })
 
 axes.legend()
 #plt.show()
