@@ -1,0 +1,99 @@
+#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks=36
+##SBATCH --ntasks-per-node=40
+#SBATCH -A cli@cpu
+####SBATCH --partition=archive
+#SBATCH --hint=nomultithread
+#SBATCH -J JOB_annual_1d
+#SBATCH -e zjobannual.e%j
+#SBATCH -o zjobannual.o%j
+#SBATCH --time=20:00:00
+#SBATCH --exclusive
+
+
+#set -x 
+
+if [ $# = 0 ] ; then
+  echo "USAGE: jobannual LIST-years"
+  echo
+  echo "PURPOSE: "
+  echo "    Compute annual mean from daily mean produced by XIOS"
+  exit
+fi
+
+get_confcase() {
+here=$(pwd)
+b_name=$( basename $here )
+
+case $b_name in
+(CTL) tmp=$(dirname  $here )
+      echo "paf $tmp "
+      CONFCASE=$( basename $tmp )
+      CONFIG=${CONFCASE%-*}
+      CASE=${CONFCASE#*-} ;;
+
+(CDF ) tmp=$(dirname $here  )
+       tmp=$(dirname $tmp  )
+      CONFCASE=$( basename $tmp )
+      CONFIG=${CONFCASE%-*}
+      CASE=${CONFCASE#*-} ;;
+( * ) echo " cannot infer CONFASE !"
+      echo " This is not a CTL dir nor a CTL/CDF dir "
+      exit 1
+esac
+echo "     CONFIG   : " $CONFIG
+echo "     CASE     : " $CASE
+echo " ==> CONFCASE : " $CONFCASE
+               }
+
+get_confcase
+
+ROOT_DIR=$DDIR
+#==========================================
+years=( $* )
+
+CONFCASE=${CONFIG}-${CASE}
+DAYLYDIR=$ROOT_DIR/${CONFIG}/${CONFCASE}-S/1d
+YEARLYDIR=$ROOT_DIR/${CONFIG}/${CONFCASE}-MEAN/1m
+
+n=0
+for year in ${years[@]} ; do
+   # detect leap years
+   if [ $(( year % 4 )) = 0 ] ; then
+        if [ $(( $year % 100 )) -eq  0  -a  $(( $year % 400 )) -ne  0  ] ; then
+          LEAP=''
+        else
+          LEAP='-leap'
+        fi
+   else
+          LEAP=''
+   fi
+
+   mkdir -p  $YEARLYDIR/$year/
+   cd ${DAYLYDIR}/$year
+#   typlst=( $(ls *m01d01* | awk -F_ '{print $NF}' | sed -e "s/.nc//")  ) 
+   typlst=( gridV )
+   ntypes=${#typlst[@]}
+   echo $ntypes  types to deal with
+   echo $(( 40 / ntypes ))
+   for typ in  ${typlst[@]} ; do
+      for m in {01..12} ; do
+         lst=( $(ls -1 ${CONFCASE}_y${year}m${m}d??.1d_${typ}.nc  ) )
+         if [ $typ = 'gridW' ] ;then
+            VVL=''
+         else
+            VVL="-vvl"
+         fi
+         cdfmoy -l ${lst[@]}  $VVL -nc4 -o $YEARLYDIR/$year/${CONFCASE}_y${year}m${m}.1m_${typ} &
+#         cdfmoy -l ${CONFCASE}_y${year}m${m}d??.1d_${typ}.nc  -vvl -nc4 -o $YEARLYDIR/$year/${CONFCASE}_y${year}m${m}.1m_${typ}.nc &
+         echo "$typ $year $m"'==> ' " ${CONFCASE}_y${year}m${m}.1m_${typ}.nc"
+      n=$(( n + 1 ))
+   if [ $n = 36 ] ; then
+       wait
+       n=0
+   fi
+      done
+   done
+done
+wait

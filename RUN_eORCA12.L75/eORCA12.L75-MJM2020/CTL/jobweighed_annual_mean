@@ -1,0 +1,68 @@
+#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks=10
+#SBATCH --ntasks-per-node=40
+#SBATCH --threads-per-core=1
+#SBATCH -A cli@cpu
+#SBATCH --hint=nomultithread
+#SBATCH -J Annual_Wmean
+#SBATCH -e zjobaw.e%j
+#SBATCH -o zjobaw.o%j
+#SBATCH --time=12:30:00
+#SBATCH --dependency=afterok:817085
+##SBATCH --exclusive
+
+
+CONFIG=eORCA12.L75
+CASE=GJM2020
+CONFCASE=${CONFIG}-${CASE}
+freq=1m
+y1=2000
+y2=2000
+
+nmax=$(( y2 - y1 + 1 ))
+if [ $nmax -gt 40 ] ; then
+  echo cannot process more than 40 years in a single job 
+  exit
+fi
+
+MSDIR=$DDIR/${CONFIG}/${CONFCASE}-MEAN/$freq/
+cd $MSDIR
+# look for variables :
+
+cd $y1
+lst=''
+for f in ${CONFCASE}_y${y1}m01.${freq}_*.nc ; do
+   lst="$lst $(echo ${f%.nc} | awk -F_ '{print $NF}' )"
+done
+echo $lst
+cd $MSDIR
+#ICBT flxT gridT gridT2 gridTsurf gridTsurf2 gridU gridU2 gridUsurf gridUsurf2 gridV gridV2 gridVsurf gridVsurf2 gridW gridW2 icemod
+
+lst="gridV gridV2"
+n=0
+for typ in $lst ; do
+  case $typ in 
+  (gridW | gridW2 | icemod | ICBT | flxT | gridTsurf | gridTsurf2 | gridUsurf | gridUsurf2 | gridVsurf | gridVsurf2 | VT ) VVL='' ;; 
+  (*) VVL='-vvl' ;;
+  esac
+  echo processing $typ
+  for y in $( seq $y1 $y2 ) ; do
+     ( cd $y
+       case $typ in 
+       (gridU2) E3=" -e3 $( ls ${CONFCASE}_y${y}m??.${freq}_gridU.nc )" ;;
+       (gridV2) E3=" -e3 $( ls ${CONFCASE}_y${y}m??.${freq}_gridV.nc )" ;;
+       (*)      E3='' ;;
+       esac
+       cdfmoy_weighted -l ${CONFCASE}_y${y}m??.${freq}_${typ}.nc $E3  $VVL -nc4 -o ${CONFCASE}_y${y}.${freq}_${typ}.nc ) &
+       n=$(( n + 1 ))
+       if [ $n = $nmax ] ; then
+          wait
+          n=0
+       fi
+  done
+wait
+done
+wait
+
+
