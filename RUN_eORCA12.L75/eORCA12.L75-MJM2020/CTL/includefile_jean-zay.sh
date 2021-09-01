@@ -16,6 +16,9 @@ set -x
  RST_DIRS=1                           # if set, assumes that restart files are written on multiple directories.
  RST_READY=1                          # if set assumes that restart file are ready to be read by NEMO (no links).
 
+ monthly=1                            # set to 1 for 1mo job segments (for correct update of db file)
+ semestrial=0                         # set to 1 for 6mo job segments (for correct update of db file)
+
 #########################################################################
 
  CONFIG=eORCA12.L75

@@ -75,9 +75,9 @@
    !
 !  rn_rdt      =    72.    !  time step for the dynamics and tracer :1 day
 !  rn_rdt      =    180.    !  time step for the dynamics and tracer 2 days x2 ( last 2 with linssh off
-   rn_rdt      =    240.    !  time step for the dynamics and tracer 2 days x2 ( last 2 with linssh off
+!  rn_rdt      =    240.    !  time step for the dynamics and tracer 2 days x2 ( last 2 with linssh off
 !  rn_rdt      =    300.    !  time step for the dynamics and tracer 2 days x2 ( last 2 with linssh off
-!  rn_rdt      =    360.    !  time step for the dynamics and tracer 25 days
+   rn_rdt      =    360.    !  time step for the dynamics and tracer 25 days
 !  rn_rdt      =    450.    !  time step for the dynamics and tracer 25 days
 !  rn_rdt      =    600.    !  time step for the dynamics and tracer 25 days
    rn_atfp     =    0.1    !  asselin time filter parameter

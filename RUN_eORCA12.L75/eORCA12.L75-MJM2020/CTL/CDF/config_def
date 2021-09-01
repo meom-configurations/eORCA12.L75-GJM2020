@@ -27,7 +27,7 @@ MAIL=Jean-Marc.Molines@univ-grenoble-alpes.fr      ## to be edited ##
 useMPI=1 
 
 # XIOS output from model ? (set XIOS=   if not used
-XIOS=1d
+XIOS=1m
 NC4=1        # if set to 1 use netcdf4 capabilities of the cdftools
 VVL=0        # if set to 1 use vvl capabilities of the cdftools
 FULL=0       # if set to other thing than 0, means you are using z-steps, no partial-steps.
@@ -50,6 +50,27 @@ MESH_MASK_ID=$CONFIG     # root part of the mesh-mask files (likely  to be edite
 #TSCLIM=WOA2009          # if TSCLIM is not defined here it takes Levitus_p2.1 as default
 TSCLIM=EN4.2.1g10        # if TSCLIM is not defined here it takes Levitus_p2.1 as default
 
+# define type of file for variables
+sshtyp=gridTsurf
+sshtyp2=gridTsurf
+temtyp=gridT
+saltyp=gridT
+uzotyp=gridU 
+uzotyp2=gridU2
+vmetyp=gridV
+vmetyp2=gridV2
+wvetyp=gridW
+wvetyp2=gridW2
+flxtyp=flxT
+icetyp=icemod
+# Heat/salt transport
+vttyp=VT   # use to be VT in DRAKKAR
+uttyp=VT   # use to be VT in DRAKKAR
+  utvar=vozout  # use to be cn_vozout etc>>>
+  usvar=vozous
+  vtvar=vomevt
+  vsvar=vomevs
+####
 
 ######################################################################
 ### modules
@@ -79,12 +100,12 @@ EKE=0                    # compute EKE
 RMSSSH=0                 # compute RMS ssh and w
 TSMEAN=0                 # compute TSMEAN and ssh drift
 TSLAT=0                  # compute TSMEAN and ssh drift for latitude bands 60S - 60N
-ICEMONTH=1               # compute monthly ice volume, area and extent
+ICEMONTH=0               # compute monthly ice volume, area and extent
 GIB=0                    # compute Gibraltar diags (restoring zone)
 KERG=0                   # compute Kerguelen diags (restoring zone)
 KERGb=0                  # compute Kerguelen diags for PISCES (restoring zone)
 ELNINO=0                 # compute El Nino monitoring SSTs
-TRP=0                    # compute barotropic transport accross section as given in section.dat (CTL dir)
+TRP=1                    # compute barotropic transport accross section as given in section.dat (CTL dir)
 MHT=0                    # compute Meridional Heat Transport (advective and from surface fluxes)
 MOC=0                    # compute MOC ( need a sub basin mask file called new_maskglo.nc)
 MOCSIG=0                 # compute MOC in sigma coordinates
@@ -108,9 +129,9 @@ PISCES_INT=0             # compute PISCES vertical integration
 ### (set to 1 if you want it, to anything else if you do not !)
 ######################################################################
 
-create_gif=0             #    Create gif (1) or not (0)
+create_gif=1             #    Create gif (1) or not (0)
 
-moc=0                    # 1.0 Meridional Overturning Circulation
+moc=1                    # 1.0 Meridional Overturning Circulation
 global=0                 # 2.0 Global maps
 glodifmap=0              # 3.0 Plot of differences with reynolds and Levitus
 fluxes=1                 # 4.0 Air Sea fluxes
@@ -175,20 +196,20 @@ alboran=0                # 19. Surface circulation in the Alboran Sea + salinity
 ### (set to 1 if you want it, to anything else if you do not !)
 ######################################################################
 
-ts_cable=1               #  1. timeserie for cable transport (needs TRP = 1)
-ts_gib=1                 #  2. timeserie for gibraltar (needs GIB =1)
+ts_cable=0               #  1. timeserie for cable transport (needs TRP = 1)
+ts_gib=0                 #  2. timeserie for gibraltar (needs GIB =1)
 ts_icemonth=0            #  3. timeserie for ice monthly area, volume, extent (needs ICEMONTH = 1)
 ts_icenoaa=0             #  4. timeserie for ice compared with NOAA data (needs ICEMONTH = 1)
 ts_icetrd=0              #  5. timeserie for ice trends (needs ICEMONTH = 1)
-ts_maxmoc=1              #  6. timeserie for maximum and minimum MOC (needs MAXMOC = 1 and MHT = 1)
-ts_maxmoc40=1            #  7. timeserie for maximum and minimum MOC at 40 N (needs MAXMOC = 1)
-ts_mht1=1                #  8. timeserie for meridionnal heat transport (needs MHT = 1)
-ts_nino=1                #  9. timeserie for el nino diags (needs ELNINO = 1)
+ts_maxmoc=0              #  6. timeserie for maximum and minimum MOC (needs MAXMOC = 1 and MHT = 1)
+ts_maxmoc40=0            #  7. timeserie for maximum and minimum MOC at 40 N (needs MAXMOC = 1)
+ts_mht1=0                #  8. timeserie for meridionnal heat transport (needs MHT = 1)
+ts_nino=0                #  9. timeserie for el nino diags (needs ELNINO = 1)
 ts_tao=0                 # 10. timeserie for TAO diags (needs TAO = 1)
 ts_transports1=1         # 11. timeserie for transports (needs TRP = 1)
-ts_trpsig=1              # 12. timeserie for transports in sigma classes (needs DCT = 1)
-ts_tsmean=1              # 13. timeserie for T-S drifts (needs TSMEAN = 1)
-ts_tsmean_lev=1          # 14. timeserie for T-S drifts compared with Levitus (needs TSMEAN = 1)
+ts_trpsig=0              # 12. timeserie for transports in sigma classes (needs DCT = 1)
+ts_tsmean=0              # 13. timeserie for T-S drifts (needs TSMEAN = 1)
+ts_tsmean_lev=0          # 14. timeserie for T-S drifts compared with Levitus (needs TSMEAN = 1)
 ts_mld_kerg=0            # 15. timeserie for MXL in Kerfix, Plume and SINDIAN boxes (needs KERG = 1)
 ts_ice_kerg=0            # 16. timeserie for Ice in SINDIAN boxes (needs KERG = 1)
 ts_hov_kerg=0            # 17. hovmullers of temperature, salinity and density in Kerfix and Plume  (needs KERG = 1)
@@ -219,6 +240,16 @@ elif [ $CONFIG = 'ORCA025' -o  $CONFIG = 'ORCA025.L75' -o $CONFIG = 'ORCA025.L30
   NINO3='550 790 479 519 '
   NINO4='350 550 479 519 '
   NINO34='470 670 479 519 '
+elif [ $CONFIG = 'eORCA025.L75' ] ; then
+  # define the I-J window for GIB diags
+  GIBWIN='1094 1109 839 860 '
+  # define the I-J windows for EL NINO diags
+  NINO12='790 830 645 685'
+  NINO3='550 790 665 705 '
+  NINO4='350 550 665 705 '
+  NINO34='470 670 665 705 '
+
+
 elif [ $CONFIG = 'EORCA12' -o  $CONFIG = 'EORCA12.L46' -o $CONFIG = 'EORCA12.L75' ] ; then
   # define the I-J window for GIB diags
   GIBWIN='3282 3327 2046 2110'
