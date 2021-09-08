@@ -58,6 +58,7 @@ parser.add_argument('-pc', '--chartpal',           default=mischr  ,required=Fal
 parser.add_argument('-lnam', '--long_name',        default=mischr  ,required=False, help='specify the long name of the variable')
 parser.add_argument('-tit1', '--title1',           default=mischr  ,required=False, help='specify title-1 for the plot')
 parser.add_argument('-tit2', '--title2',           default=mischr  ,required=False, help='specify title-2 for the plot')
+parser.add_argument('-o', '--output',              default=mischr  ,required=False, help='specify a root name for the plot. Numbering added automatically')
 parser.add_argument('-d', '--figures',             default='./figs',required=False, help='specify the output directory')
 parser.add_argument('-t', '--frame',  type=int,    default=-1,      required=False, help='specify the beg frame  number, [all]')
 parser.add_argument('-nt', '--number',type=int,    default=-1,      required=False, help='specify the number of frame, [all]')
@@ -115,6 +116,7 @@ ticka  = args.tick
 clname = args.long_name
 tit1   = args.title1
 tit2   = args.title2
+cf_out = args.output
 
 print tit1
 print tit2
@@ -372,7 +374,10 @@ for tim in range(frd,fre):
 
 # full path for the output filename... Time frame numbering broken 
 #   need to restore something for multi time frame files ...
-    cfig = cdir_figs+'/'+cf_plt+'_'+cnum+'.png'
+    if cf_out == mischr:
+      cfig = cdir_figs+'/'+cf_plt+'_'+cnum+'.png'
+    else
+      cfig = cdir_figs+'/'+cf_out+'_'+cnum+'.png'
     
 # Defining the map with matplotlib/basemap : Inspired from Laurent's code (kind of black box for JM)
 #    fig = plt.figure(num = 1, figsize=(vfig_size), dpi=None, facecolor='k', edgecolor='k')
