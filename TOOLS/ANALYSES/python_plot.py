@@ -376,7 +376,7 @@ for tim in range(frd,fre):
 #   need to restore something for multi time frame files ...
     if cf_out == mischr:
       cfig = cdir_figs+'/'+cf_plt+'_'+cnum+'.png'
-    else
+    else:
       cfig = cdir_figs+'/'+cf_out+'_'+cnum+'.png'
     
 # Defining the map with matplotlib/basemap : Inspired from Laurent's code (kind of black box for JM)
